@@ -80,13 +80,13 @@ export default function VendasPage() {
     }
 
     return (
-        <div className="flex-1 p-8 lg:p-12 overflow-y-auto relative">
+        <div className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto relative">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h2 className="text-3xl font-extrabold tracking-tight">Histórico de Vendas</h2>
-                        <p className="text-slate-500 mt-1">Acompanhe todos os pedidos realizados no PDV.</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Histórico de Vendas</h2>
+                        <p className="text-sm text-slate-500 mt-1">Acompanhe todos os pedidos realizados no PDV.</p>
                     </div>
                     <Link
                         href="/pdv"

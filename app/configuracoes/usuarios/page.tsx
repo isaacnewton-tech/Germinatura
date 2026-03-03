@@ -149,12 +149,12 @@ export default function UsuariosPage() {
     }
 
     return (
-        <div className="flex-1 p-8 lg:p-12 overflow-y-auto">
+        <div className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto">
             <div className="max-w-6xl mx-auto">
                 <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h2 className="text-3xl font-extrabold tracking-tight">Gestão de Usuários</h2>
-                        <p className="text-slate-500 mt-1">Gerencie os acessos administrativas e de vendedores.</p>
+                        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Gestão de Usuários</h2>
+                        <p className="text-sm text-slate-500 mt-1">Gerencie os acessos administrativas e de vendedores.</p>
                     </div>
                     <button
                         onClick={() => handleOpenModal()}

@@ -75,7 +75,7 @@ export function Sidebar() {
 
     if (loading) {
         return (
-            <aside className="w-64 border-r border-slate-200 bg-white flex flex-col h-screen sticky top-0 items-center justify-center">
+            <aside className="w-full h-full border-r border-slate-200 bg-white flex flex-col items-center justify-center">
                 <Loader2 className="size-6 animate-spin text-primary" />
             </aside>
         );
@@ -87,7 +87,7 @@ export function Sidebar() {
     console.log("Sidebar: Rendering filtered menu for profile:", userProfile, filteredMenu);
 
     return (
-        <aside className="w-64 border-r border-slate-200 bg-white flex flex-col h-screen sticky top-0">
+        <aside className="w-full h-full border-r border-slate-200 bg-white flex flex-col">
             <div className="p-6 flex items-center gap-3">
                 <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                     <GraduationCap className="size-6" />

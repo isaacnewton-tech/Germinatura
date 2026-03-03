@@ -58,7 +58,7 @@ export default function FluxoCaixa() {
     };
 
     return (
-        <main className="p-8">
+        <main className="p-4 md:p-8">
             <div className="max-w-3xl mx-auto">
                 <header className="mb-8">
                     <div className="flex items-center gap-2 text-slate-500 text-sm mb-2">
@@ -66,7 +66,7 @@ export default function FluxoCaixa() {
                         <ChevronRight className="size-3" />
                         <span className="font-medium text-slate-900">Novo Lançamento</span>
                     </div>
-                    <h2 className="text-3xl font-bold tracking-tight">Novo Lançamento Financeiro</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Novo Lançamento Financeiro</h2>
                 </header>
 
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">

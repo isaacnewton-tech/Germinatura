@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 
 import { ToastProvider } from "@/components/ui/Toast";
 
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,12 +27,9 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={`${poppins.variable} font-sans antialiased bg-background-light text-slate-900`}>
         <ToastProvider>
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto">
-              {children}
-            </main>
-          </div>
+          <DashboardLayout>
+            {children}
+          </DashboardLayout>
         </ToastProvider>
       </body>
     </html>
