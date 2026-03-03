@@ -51,8 +51,9 @@ export default function LoginPage() {
             <div className="w-full max-w-md">
                 {/* Logo and Greeting */}
                 <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-lg shadow-primary/20 text-white mb-4">
-                        <GraduationCap className="size-8" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg shadow-primary/20 text-white mb-4">
+                        {/* <GraduationCap className="size-8" /> */}
+                        <img src="https://i.imgur.com/EnMI9CP.png" alt="G" className="rounded-2xl" />
                     </div>
                     <h1 className="text-3xl font-black tracking-tight text-slate-900">Germinatura</h1>
                     <p className="text-slate-500 font-medium mt-2">Bem-vindo de volta!</p>

@@ -6,7 +6,7 @@
 }
 
 @theme inline {
-  --color-primary: #5048e5;
+  --color-primary: #001ec5;
   --color-background-light: #f6f6f8;
   --color-background: var(--background);
   --color-foreground: var(--foreground);

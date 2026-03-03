@@ -90,7 +90,8 @@ export function Sidebar() {
         <aside className="w-full h-full border-r border-slate-200 bg-white flex flex-col">
             <div className="p-6 flex items-center gap-3">
                 <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                    <GraduationCap className="size-6" />
+                    {/* <GraduationCap className="size-6" /> */}
+                    <img src="https://i.imgur.com/EnMI9CP.png" alt="G" className="rounded-lg"/>
                 </div>
                 <div>
                     <h1 className="font-bold text-sm">Germinatura</h1>

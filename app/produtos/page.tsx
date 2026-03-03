@@ -63,6 +63,8 @@ export default function GestaoProdutos() {
 
     const toggleStatus = async (id: string, currentStatus: boolean) => {
         try {
+            setProducts(products.map(p => p.id === id ? { ...p, ativo: !currentStatus } : p));
+            
             const response = await fetch(`/api/produtos/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -71,6 +73,9 @@ export default function GestaoProdutos() {
 
             if (response.ok) {
                 setProducts(products.map(p => p.id === id ? { ...p, ativo: !currentStatus } : p));
+            }
+            else {
+                setProducts(products.map(p => p.id === id ? { ...p, ativo: currentStatus } : p));
             }
         } catch (error) {
             console.error("Erro ao atualizar status:", error);

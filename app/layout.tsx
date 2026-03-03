@@ -10,7 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Comissão de Formatura - Gestão Financeira",
+  title: "Germinatura",
   description: "Plataforma completa para controle de vendas e fluxo de caixa",
 };
 

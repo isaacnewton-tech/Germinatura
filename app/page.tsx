@@ -133,7 +133,7 @@ export default function Dashboard() {
       </div>
 
       <footer className="p-8 text-center text-slate-500 text-xs">
-        © 2024 Graduation Committee Management System. All rights reserved.
+        © 2026 Comissão de Formatura Germinare TECH. Todos direitos reservados.
       </footer>
     </div>
   );
