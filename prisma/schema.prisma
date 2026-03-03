@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           String   @id @default(cuid())
+  nome         String
+  email        String   @unique
+  senha        String
+  perfil       Perfil   @default(VENDEDOR)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  vendas       Venda[]
+}
+
+model Produto {
+  id           String         @id @default(cuid())
+  nome         String
+  ativo        Boolean        @default(true)
+  imagemUrl    String?
+  criadoEm     DateTime       @default(now())
+  atualizadoEm DateTime       @updatedAt
+  itensVenda   ItemVenda[]
+  precos       PrecoProduto[]
+}
+
+model PrecoProduto {
+  id        String   @id @default(cuid())
+  valor     Float
+  produtoId String
+  criadoEm  DateTime @default(now())
+  produto   Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+}
+
+model Venda {
+  id          String               @id @default(cuid())
+  total       Float
+  transacaoId String?              @unique
+  criadoEm    DateTime             @default(now())
+  usuarioId   String?
+  itens       ItemVenda[]
+  transacao   TransacaoFinanceira? @relation(fields: [transacaoId], references: [id])
+  usuario     Usuario?             @relation(fields: [usuarioId], references: [id])
+}
+
+model ItemVenda {
+  id            String  @id @default(cuid())
+  vendaId       String
+  produtoId     String
+  quantidade    Int
+  precoUnitario Float
+  produto       Produto @relation(fields: [produtoId], references: [id])
+  venda         Venda   @relation(fields: [vendaId], references: [id])
+}
+
+model TransacaoFinanceira {
+  id           String        @id @default(cuid())
+  tipo         TipoTransacao
+  categoria    String
+  descricao    String
+  valor        Float
+  data         DateTime      @default(now())
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+  venda        Venda?
+}
+
+enum Perfil {
+  ADMIN
+  VENDEDOR
+}
+
+enum TipoTransacao {
+  ENTRADA
+  SAIDA
+}
