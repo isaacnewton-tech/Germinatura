@@ -1,13 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Menu, X, GraduationCap } from "lucide-react";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+    if (pathname === "/login" || pathname === "/pdv") {
+        return <>{children}</>;
+    }
 
     return (
         <div className="flex min-h-screen">
