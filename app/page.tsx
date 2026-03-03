@@ -105,7 +105,7 @@ export default function Dashboard() {
             </div>
             <div className="text-right">
               <span className="text-2xl font-black text-primary">
-                {Math.min(100, Math.round((data.totalArrecadado / 60000) * 100))}%
+                {Math.min(100, Math.round((data.totalArrecadado / Number(process.env.NEXT_PUBLIC_PIX_META_ARRECADACAO || 60000)) * 100))}%
               </span>
               <span className="text-sm text-slate-500 ml-1">Arrecadado</span>
             </div>
@@ -113,12 +113,12 @@ export default function Dashboard() {
           <div className="w-full bg-slate-100 h-4 rounded-full overflow-hidden">
             <div
               className="bg-primary h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, (data.totalArrecadado / 60000) * 100)}%` }}
+              style={{ width: `${Math.min(100, (data.totalArrecadado / Number(process.env.NEXT_PUBLIC_PIX_META_ARRECADACAO || 60000)) * 100)}%` }}
             ></div>
           </div>
           <div className="flex justify-between mt-3 text-sm">
             <span className="font-semibold">R$ {data.totalArrecadado.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-            <span className="text-slate-500">Meta: R$ 60.000,00</span>
+            <span className="text-slate-500">Meta: R$ {Number(process.env.NEXT_PUBLIC_PIX_META_ARRECADACAO || 60000).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
           </div>
         </div>
 

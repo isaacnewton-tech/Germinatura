@@ -15,9 +15,9 @@ export async function POST(request: Request) {
 
         const payload = montarPayloadPix({
             valor,
-            chave,
-            nome: nome || "Plataforma Web",
-            cidade: cidade || "SAO PAULO"
+            chave: chave || process.env.NEXT_PUBLIC_PIX_CHAVE || "",
+            nome: nome || process.env.NEXT_PUBLIC_PIX_NOME_RECEBEDOR || "Plataforma Web",
+            cidade: cidade || process.env.NEXT_PUBLIC_PIX_CIDADE || "SAO PAULO"
         });
 
         return NextResponse.json({ payload });

@@ -102,9 +102,9 @@ export default function PDVMobile() {
     const pixPayload = useMemo(() => {
         if (total <= 0) return "";
         return montarPayloadPix({
-            chave: "08867563750",
-            nome: "Comissao GerminareTECH",
-            cidade: "Sao Paulo",
+            chave: process.env.NEXT_PUBLIC_PIX_CHAVE || "",
+            nome: process.env.NEXT_PUBLIC_PIX_NOME_RECEBEDOR || "Comissao GerminareTECH",
+            cidade: process.env.NEXT_PUBLIC_PIX_CIDADE || "Sao Paulo",
             valor: total.toFixed(2)
         });
     }, [total]);
