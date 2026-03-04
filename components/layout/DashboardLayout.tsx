@@ -53,7 +53,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                         </button>
                         <div className="flex items-center gap-2">
                             <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                                <GraduationCap className="size-5" />
+                                {/* <GraduationCap className="size-5" /> */}
+                                <img src="https://i.imgur.com/EnMI9CP.png" alt="G" className="rounded-lg" />
                             </div>
                             <h1 className="font-bold text-sm">Germinatura</h1>
                         </div>
