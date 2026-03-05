@@ -83,7 +83,7 @@ export function Sidebar() {
     }
 
     const userProfile = user?.perfil || "";
-    const filteredMenu = menuItems.filter(item => item.roles.includes(userProfile));
+    const filteredMenu = menuItems.filter((item: any) => item.roles.includes(userProfile));
 
     console.log("Sidebar: Rendering filtered menu for profile:", userProfile, filteredMenu);
 
@@ -101,7 +101,7 @@ export function Sidebar() {
             </div>
 
             <nav className="flex-1 px-4 py-4 space-y-1">
-                {filteredMenu.map((item) => {
+                {filteredMenu.map((item: any) => {
                     const isActive = pathname === item.href;
                     return (
                         <Link

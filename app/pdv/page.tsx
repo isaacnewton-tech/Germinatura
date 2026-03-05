@@ -71,25 +71,25 @@ export default function PDVMobile() {
 
         fetch("/api/produtos")
             .then(res => res.json())
-            .then(data => {
+            .then((data: any) => {
                 setProducts(data.filter((p: Product) => p.ativo));
                 setLoading(false); // This setLoading(false) is for products
             })
-            .catch(err => {
+            .catch((err: any) => {
                 console.error("Erro ao carregar produtos:", err);
                 setLoading(false);
             });
     }, []);
 
     const total = useMemo(() => {
-        return Object.entries(cart).reduce((acc, [id, qty]) => {
-            const product = products.find(p => p.id === id);
+        return Object.entries(cart).reduce((acc: any, [id, qty]) => {
+            const product = products.find((p: any) => p.id === id);
             return acc + (product?.preco || 0) * qty;
         }, 0);
     }, [cart, products]);
 
     const updateQuantity = (id: string, delta: number) => {
-        setCart(prev => {
+        setCart((prev: any) => {
             const current = prev[id] || 0;
             const next = Math.max(0, current + delta);
             if (next === 0) {
@@ -110,7 +110,7 @@ export default function PDVMobile() {
         });
     }, [total]);
 
-    const cartItems = products.filter(p => cart[p.id] > 0);
+    const cartItems = products.filter((p: any) => cart[p.id] > 0);
 
     const { showToast } = useToast();
 
@@ -121,7 +121,7 @@ export default function PDVMobile() {
         try {
             const saleData = {
                 total,
-                itens: cartItems.map(p => ({
+                itens: cartItems.map((p: any) => ({
                     produtoId: p.id,
                     quantidade: cart[p.id],
                     precoUnitario: p.preco
@@ -199,7 +199,7 @@ export default function PDVMobile() {
                 </div>
 
                 {/* Product Cards */}
-                {products.map((product) => (
+                {products.map((product: any) => (
                     <div key={product.id} className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm border border-slate-100 transition-transform active:scale-[0.98]">
                         <div className="flex gap-4">
                             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100 flex items-center justify-center">
@@ -290,7 +290,7 @@ export default function PDVMobile() {
                     </div>
 
                     <div className="my-6 space-y-2 rounded-xl bg-slate-50 p-4 border border-slate-100">
-                        {cartItems.map(p => (
+                        {cartItems.map((p: any) => (
                             <div key={p.id} className="flex justify-between text-sm">
                                 <span className="text-slate-600">{cart[p.id]}x {p.nome}</span>
                                 <span className="font-medium text-slate-900">

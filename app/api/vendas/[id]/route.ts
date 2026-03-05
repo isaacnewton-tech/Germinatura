@@ -44,7 +44,7 @@ export async function DELETE(
         const { id } = await params;
 
         // Perform deletion in a transaction to ensure atomicity
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: any) => {
             // 1. Delete all items related to the sale
             await tx.itemVenda.deleteMany({
                 where: { vendaId: id }

@@ -129,7 +129,7 @@ export default function FluxoCaixa() {
                                     {/* <span className="absolute left-1 top-1/2 -translate-y-1/2 text-slate-400 font-medium font-sans text-sm">R$</span> */}
                                     <input
                                         value={formData.valor}
-                                        onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+                                        onChange={(e: any) => setFormData({ ...formData, valor: e.target.value })}
                                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all appearance-none"
                                         placeholder="0,00"
                                         type="text"
@@ -141,7 +141,7 @@ export default function FluxoCaixa() {
                                 <div className="relative">
                                     <input
                                         value={formData.data}
-                                        onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+                                        onChange={(e: any) => setFormData({ ...formData, data: e.target.value })}
                                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all appearance-none"
                                         type="date"
                                     />
@@ -154,7 +154,7 @@ export default function FluxoCaixa() {
                             <label className="text-sm font-semibold text-slate-700">Categoria</label>
                             <select
                                 value={formData.categoria}
-                                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                                onChange={(e: any) => setFormData({ ...formData, categoria: e.target.value })}
                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all appearance-none cursor-pointer"
                             >
                                 <option value="">Selecione uma categoria</option>
@@ -170,7 +170,7 @@ export default function FluxoCaixa() {
                             <label className="text-sm font-semibold text-slate-700">Descrição</label>
                             <textarea
                                 value={formData.descricao}
-                                onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                                onChange={(e: any) => setFormData({ ...formData, descricao: e.target.value })}
                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
                                 placeholder="Ex: Pagamento da primeira parcela do Buffet - Evento de Formatura"
                                 rows={3}

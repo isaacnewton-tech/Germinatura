@@ -14,7 +14,7 @@ export async function GET() {
         });
 
         // Mapear para incluir o preço mais recente no nível superior para compatibilidade
-        const produtos = produtosRaw.map(p => ({
+        const produtos = (produtosRaw as any[]).map((p: any) => ({
             ...p,
             preco: p.precos[0]?.valor || 0
         }));

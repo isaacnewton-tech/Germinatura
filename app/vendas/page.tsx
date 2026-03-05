@@ -72,10 +72,10 @@ export default function VendasPage() {
         fetchVendas();
     }, []);
 
-    const filteredVendas = vendas.filter(venda =>
+    const filteredVendas = vendas.filter((venda: any) =>
         venda.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         venda.usuario?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        venda.itens.some(item => item.produto.nome.toLowerCase().includes(searchTerm.toLowerCase()))
+        venda.itens.some((item: any) => item.produto.nome.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     const handleExcluirVenda = async () => {
@@ -88,7 +88,7 @@ export default function VendasPage() {
             });
 
             if (res.ok) {
-                setVendas(vendas.filter(v => v.id !== vendaParaExcluir.id));
+                setVendas(vendas.filter((v: any) => v.id !== vendaParaExcluir.id));
                 setVendaParaExcluir(null);
                 setConfirmacaoTexto("");
                 showToast("Venda excluída com sucesso!", "success");
@@ -137,7 +137,7 @@ export default function VendasPage() {
                             type="text"
                             placeholder="Buscar por ID, produto ou vendedor..."
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e: any) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all"
                         />
                     </div>
@@ -158,7 +158,7 @@ export default function VendasPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {filteredVendas.map((venda) => (
+                                {filteredVendas.map((venda: any) => (
                                     <tr key={venda.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-6 py-5">
                                             <span className="font-mono text-xs font-bold text-slate-400">#{venda.id.slice(-6).toUpperCase()}</span>
@@ -183,7 +183,7 @@ export default function VendasPage() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200">
-                                                {venda.itens.reduce((acc, item) => acc + item.quantidade, 0)} itens
+                                                {venda.itens.reduce((acc: any, item: any) => acc + item.quantidade, 0)} itens
                                             </span>
                                         </td>
                                         <td className="px-6 py-5">
@@ -239,7 +239,7 @@ export default function VendasPage() {
                                     Itens do Pedido
                                 </h4>
                                 <div className="space-y-3">
-                                    {selectedVenda.itens.map((item) => (
+                                    {selectedVenda.itens.map((item: any) => (
                                         <div key={item.id} className="flex justify-between items-center p-3 rounded-xl bg-slate-50 border border-slate-100">
                                             <div className="flex flex-col">
                                                 <span className="font-bold text-slate-900">{item.produto.nome}</span>
@@ -331,7 +331,7 @@ export default function VendasPage() {
                                 type="text"
                                 autoFocus
                                 value={confirmacaoTexto}
-                                onChange={(e) => setConfirmacaoTexto(e.target.value)}
+                                onChange={(e: any) => setConfirmacaoTexto(e.target.value)}
                                 placeholder="Digite a mensagem de confirmação..."
                                 className="w-full px-4 py-3 bg-white border-2 border-slate-100 focus:border-red-500 rounded-xl outline-none transition-all text-center font-medium"
                             />

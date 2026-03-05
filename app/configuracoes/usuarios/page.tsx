@@ -135,7 +135,7 @@ export default function UsuariosPage() {
         }
     };
 
-    const filteredUsuarios = usuarios.filter(u =>
+    const filteredUsuarios = usuarios.filter((u: any) =>
         u.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -171,7 +171,7 @@ export default function UsuariosPage() {
                         type="text"
                         placeholder="Buscar por nome ou email..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e: any) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all"
                     />
                 </div>
@@ -188,7 +188,7 @@ export default function UsuariosPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {filteredUsuarios.map((user) => (
+                                {filteredUsuarios.map((user: any) => (
                                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">

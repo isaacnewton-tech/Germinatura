@@ -195,7 +195,7 @@ export default function Dashboard() {
                     autoFocus
                     type="number"
                     value={newMeta}
-                    onChange={(e) => setNewMeta(e.target.value)}
+                    onChange={(e: any) => setNewMeta(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-900 focus:ring-2 focus:ring-primary outline-none"
                   />
                 </div>

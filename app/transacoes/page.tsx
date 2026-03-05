@@ -87,11 +87,11 @@ export default function TransacoesPage() {
     };
 
     const totalArrecadado = transactions
-        .filter(t => t.tipo === "ENTRADA")
+        .filter((t: any) => t.tipo === "ENTRADA")
         .reduce((acc, t) => acc + t.valor, 0);
 
     const totalGasto = transactions
-        .filter(t => t.tipo === "SAIDA")
+        .filter((t: any) => t.tipo === "SAIDA")
         .reduce((acc, t) => acc + t.valor, 0);
 
     return (
@@ -141,7 +141,7 @@ export default function TransacoesPage() {
                             <input
                                 type="date"
                                 value={filters.startDate}
-                                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                                onChange={(e: any) => setFilters({ ...filters, startDate: e.target.value })}
                                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                             />
                         </div>
@@ -152,7 +152,7 @@ export default function TransacoesPage() {
                             <input
                                 type="date"
                                 value={filters.endDate}
-                                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                                onChange={(e: any) => setFilters({ ...filters, endDate: e.target.value })}
                                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                             />
                         </div>
@@ -162,11 +162,11 @@ export default function TransacoesPage() {
                             </label>
                             <select
                                 value={filters.usuarioId}
-                                onChange={(e) => setFilters({ ...filters, usuarioId: e.target.value })}
+                                onChange={(e: any) => setFilters({ ...filters, usuarioId: e.target.value })}
                                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none transition-all cursor-pointer"
                             >
                                 <option value="">Todos os usuários</option>
-                                {users.map(u => (
+                                {users.map((u: any) => (
                                     <option key={u.id} value={u.id}>{u.nome}</option>
                                 ))}
                             </select>
@@ -211,7 +211,7 @@ export default function TransacoesPage() {
                                         </td>
                                     </tr>
                                 ) : (
-                                    transactions.map(t => (
+                                    transactions.map((t: any) => (
                                         <tr key={t.id} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
                                                 {new Date(t.data).toLocaleDateString("pt-BR")}
@@ -232,8 +232,8 @@ export default function TransacoesPage() {
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase ${t.tipo === "ENTRADA"
-                                                        ? "bg-emerald-100 text-emerald-700"
-                                                        : "bg-rose-100 text-rose-700"
+                                                    ? "bg-emerald-100 text-emerald-700"
+                                                    : "bg-rose-100 text-rose-700"
                                                     }`}>
                                                     {t.tipo === "ENTRADA" ? "Entrada" : "Saída"}
                                                 </span>

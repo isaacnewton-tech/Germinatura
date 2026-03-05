@@ -51,11 +51,11 @@ export default function GestaoProdutos() {
         setLoading(true);
         fetch("/api/produtos")
             .then(res => res.json())
-            .then(data => {
+            .then((data: any) => {
                 setProducts(data);
                 setLoading(false);
             })
-            .catch(err => {
+            .catch((err: any) => {
                 console.error("Erro ao carregar produtos:", err);
                 setLoading(false);
             });
@@ -67,7 +67,7 @@ export default function GestaoProdutos() {
 
     const toggleStatus = async (id: string, currentStatus: boolean) => {
         try {
-            setProducts(products.map(p => p.id === id ? { ...p, ativo: !currentStatus } : p));
+            setProducts(products.map((p: any) => p.id === id ? { ...p, ativo: !currentStatus } : p));
 
             const response = await fetch(`/api/produtos/${id}`, {
                 method: "PUT",
@@ -76,10 +76,10 @@ export default function GestaoProdutos() {
             });
 
             if (response.ok) {
-                setProducts(products.map(p => p.id === id ? { ...p, ativo: !currentStatus } : p));
+                setProducts(products.map((p: any) => p.id === id ? { ...p, ativo: !currentStatus } : p));
             }
             else {
-                setProducts(products.map(p => p.id === id ? { ...p, ativo: currentStatus } : p));
+                setProducts(products.map((p: any) => p.id === id ? { ...p, ativo: currentStatus } : p));
             }
         } catch (error) {
             console.error("Erro ao atualizar status:", error);
@@ -176,7 +176,7 @@ export default function GestaoProdutos() {
     }
 
     const totalItens = products.length;
-    const itensAtivos = products.filter(p => p.ativo).length;
+    const itensAtivos = products.filter((p: any) => p.ativo).length;
 
     return (
         <div className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto relative">
@@ -225,7 +225,7 @@ export default function GestaoProdutos() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
-                                {products.map((product) => {
+                                {products.map((product: any) => {
                                     const Icon = getIcon(product.nome);
                                     return (
                                         <tr key={product.id} className="hover:bg-slate-50/50 transition-colors">
@@ -299,7 +299,7 @@ export default function GestaoProdutos() {
                                     required
                                     type="text"
                                     value={newProduct.nome}
-                                    onChange={(e) => setNewProduct({ ...newProduct, nome: e.target.value })}
+                                    onChange={(e: any) => setNewProduct({ ...newProduct, nome: e.target.value })}
                                     placeholder="Ex: Pastel de Queijo"
                                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"
                                 />
@@ -312,7 +312,7 @@ export default function GestaoProdutos() {
                                         required
                                         type="text"
                                         value={newProduct.preco}
-                                        onChange={(e) => setNewProduct({ ...newProduct, preco: e.target.value })}
+                                        onChange={(e: any) => setNewProduct({ ...newProduct, preco: e.target.value })}
                                         placeholder="0,00"
                                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"
                                     />
