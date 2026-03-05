@@ -10,7 +10,7 @@ import {
     History,
     Landmark,
     Users,
-    LayoutTemplate,
+    ArrowRightLeft,
     LogOut,
     GraduationCap,
     Loader2
@@ -33,8 +33,8 @@ export function Sidebar() {
         { name: "Dashboard", href: "/", icon: LayoutDashboard, roles: ["ADMIN"] },
         { name: "Vendas", href: "/vendas", icon: History, roles: ["ADMIN"] },
         { name: "Produtos", href: "/produtos", icon: Package, roles: ["ADMIN"] },
-        { name: "Transações", href: "/transacoes", icon: LayoutTemplate, roles: ["ADMIN"] },
         { name: "Financeiro", href: "/fluxo-caixa", icon: Landmark, roles: ["ADMIN"] },
+        { name: "Transações", href: "/transacoes", icon: ArrowRightLeft, roles: ["ADMIN"] },
         { name: "Usuários", href: "/configuracoes/usuarios", icon: Users, roles: ["ADMIN"] },
         { name: "PDV (Ponto de Venda)", href: "/pdv", icon: ShoppingBag, roles: ["ADMIN", "VENDEDOR"] },
     ];
