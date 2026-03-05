@@ -19,12 +19,12 @@ export async function GET() {
         const meta = configMeta ? parseFloat(configMeta.valor) : parseFloat(process.env.NEXT_PUBLIC_PIX_META_ARRECADACAO || "60000");
 
         const totalArrecadado = transacoes
-            .filter((t) => t.tipo === "ENTRADA")
-            .reduce((acc, t) => acc + t.valor, 0);
+            .filter((t: any) => t.tipo === "ENTRADA")
+            .reduce((acc: any, t: any) => acc + t.valor, 0);
 
         const totalGasto = transacoes
-            .filter((t) => t.tipo === "SAIDA")
-            .reduce((acc, t) => acc + t.valor, 0);
+            .filter((t: any) => t.tipo === "SAIDA")
+            .reduce((acc: any, t: any) => acc + t.valor, 0);
 
         const saldoAtual = totalArrecadado - totalGasto;
 
@@ -43,10 +43,10 @@ export async function GET() {
             const label = d.toLocaleString("pt-BR", { month: "short" });
 
             const somaEntradas = transacoes
-                .filter(t => t.tipo === "ENTRADA" &&
+                .filter((t: any) => t.tipo === "ENTRADA" &&
                     new Date(t.data).getMonth() === d.getMonth() &&
                     new Date(t.data).getFullYear() === d.getFullYear())
-                .reduce((acc, t) => acc + t.valor, 0);
+                .reduce((acc: any, t: any) => acc + t.valor, 0);
 
             meses.push({ mes: label, valor: somaEntradas });
         }
