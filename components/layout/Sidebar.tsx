@@ -33,6 +33,7 @@ export function Sidebar() {
         { name: "Dashboard", href: "/", icon: LayoutDashboard, roles: ["ADMIN"] },
         { name: "Vendas", href: "/vendas", icon: History, roles: ["ADMIN"] },
         { name: "Produtos", href: "/produtos", icon: Package, roles: ["ADMIN"] },
+        { name: "Transações", href: "/transacoes", icon: LayoutTemplate, roles: ["ADMIN"] },
         { name: "Financeiro", href: "/fluxo-caixa", icon: Landmark, roles: ["ADMIN"] },
         { name: "Usuários", href: "/configuracoes/usuarios", icon: Users, roles: ["ADMIN"] },
         { name: "PDV (Ponto de Venda)", href: "/pdv", icon: ShoppingBag, roles: ["ADMIN", "VENDEDOR"] },
@@ -91,7 +92,7 @@ export function Sidebar() {
             <div className="p-6 flex items-center gap-3">
                 <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                     {/* <GraduationCap className="size-6" /> */}
-                    <img src="https://i.imgur.com/EnMI9CP.png" alt="G" className="rounded-lg"/>
+                    <img src="https://i.imgur.com/EnMI9CP.png" alt="G" className="rounded-lg" />
                 </div>
                 <div>
                     <h1 className="font-bold text-sm">Germinatura</h1>

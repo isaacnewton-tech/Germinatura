@@ -6,6 +6,18 @@ export async function GET() {
         // 1. Calcula Saldo Atual, Total Arrecadado e Total Gasto
         const transacoes = await prisma.transacaoFinanceira.findMany();
 
+        let configMeta: any = null;
+        try {
+            const results = await prisma.$queryRaw`SELECT * FROM "Configuracao" WHERE "chave" = 'META_ARRECADACAO' LIMIT 1`;
+            if (Array.isArray(results) && results.length > 0) {
+                configMeta = results[0];
+            }
+        } catch (e) {
+            console.warn("Raw SQL select failed in dashboard:", e);
+        }
+
+        const meta = configMeta ? parseFloat(configMeta.valor) : parseFloat(process.env.NEXT_PUBLIC_PIX_META_ARRECADACAO || "60000");
+
         const totalArrecadado = transacoes
             .filter((t) => t.tipo === "ENTRADA")
             .reduce((acc, t) => acc + t.valor, 0);
@@ -16,9 +28,9 @@ export async function GET() {
 
         const saldoAtual = totalArrecadado - totalGasto;
 
-        // 2. Busca as últimas 10 transações
+        // 2. Busca as últimas 3 transações
         const transacoesRecentes = await prisma.transacaoFinanceira.findMany({
-            take: 10,
+            take: 3,
             orderBy: { data: "desc" },
         });
 
@@ -43,6 +55,7 @@ export async function GET() {
             saldoAtual,
             totalArrecadado,
             totalGasto,
+            meta,
             transacoesRecentes,
             entradasPorMes: meses,
         });

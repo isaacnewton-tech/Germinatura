@@ -1,16 +1,47 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+import { getSession } from "@/lib/auth";
+
+export async function GET(request: Request) {
     try {
-        const transacoes = await prisma.transacaoFinanceira.findMany({
+        const { searchParams } = new URL(request.url);
+        const startDate = searchParams.get("startDate");
+        const endDate = searchParams.get("endDate");
+        const usuarioId = searchParams.get("usuarioId");
+
+        const where: any = {};
+
+        if (startDate || endDate) {
+            where.data = {};
+            if (startDate) where.data.gte = new Date(startDate);
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                where.data.lte = end;
+            }
+        }
+
+        if (usuarioId) {
+            where.usuarioId = usuarioId;
+        }
+
+        const transacoes = await (prisma as any).transacaoFinanceira.findMany({
+            where,
+            include: {
+                usuario: {
+                    select: {
+                        nome: true
+                    }
+                }
+            },
             orderBy: { data: "desc" },
         });
         return NextResponse.json(transacoes);
     } catch (error) {
-        console.error("Erro ao buscar transações:", error);
+        console.error("ERRO CRÍTICO (GET /api/transacoes):", error);
         return NextResponse.json(
-            { error: "Erro ao buscar transações" },
+            { error: `Erro ao buscar transações: ${error instanceof Error ? error.message : "Erro desconhecido"}` },
             { status: 500 }
         );
     }
@@ -18,16 +49,18 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
+        const session = await getSession();
         const body = await request.json();
         const { tipo, categoria, descricao, valor, data } = body;
 
-        const transacao = await prisma.transacaoFinanceira.create({
+        const transacao = await (prisma as any).transacaoFinanceira.create({
             data: {
                 tipo,
                 categoria,
                 descricao,
                 valor: parseFloat(valor),
                 data: data ? new Date(data) : new Date(),
+                usuarioId: session?.user?.id || null
             },
         });
 

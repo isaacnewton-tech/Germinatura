@@ -9,8 +9,10 @@ import {
     Beer,
     Cookie,
     Loader2,
-    X,
-    Check
+    Check,
+    Upload,
+    ImageIcon,
+    X
 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 
@@ -41,6 +43,8 @@ export default function GestaoProdutos() {
         ativo: true,
         imagemUrl: ""
     });
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const { showToast } = useToast();
 
     const loadProducts = () => {
@@ -64,7 +68,7 @@ export default function GestaoProdutos() {
     const toggleStatus = async (id: string, currentStatus: boolean) => {
         try {
             setProducts(products.map(p => p.id === id ? { ...p, ativo: !currentStatus } : p));
-            
+
             const response = await fetch(`/api/produtos/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -94,15 +98,19 @@ export default function GestaoProdutos() {
             const url = editingProduct ? `/api/produtos/${editingProduct.id}` : "/api/produtos";
             const method = editingProduct ? "PUT" : "POST";
 
+            const formData = new FormData();
+            formData.append("nome", newProduct.nome);
+            formData.append("preco", newProduct.preco.replace(",", "."));
+            formData.append("ativo", String(newProduct.ativo));
+            if (selectedFile) {
+                formData.append("imagem", selectedFile);
+            } else if (newProduct.imagemUrl) {
+                formData.append("imagemUrl", newProduct.imagemUrl);
+            }
+
             const response = await fetch(url, {
                 method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    nome: newProduct.nome,
-                    ativo: newProduct.ativo,
-                    imagemUrl: newProduct.imagemUrl,
-                    preco: parseFloat(newProduct.preco.replace(",", "."))
-                })
+                body: formData
             });
 
             if (response.ok) {
@@ -143,6 +151,20 @@ export default function GestaoProdutos() {
         setIsModalOpen(false);
         setEditingProduct(null);
         setNewProduct({ nome: "", preco: "", ativo: true, imagemUrl: "" });
+        setSelectedFile(null);
+        setPreviewUrl(null);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     if (loading) {
@@ -313,14 +335,44 @@ export default function GestaoProdutos() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-slate-700">URL da Imagem (Opcional)</label>
-                                <input
-                                    type="text"
-                                    value={newProduct.imagemUrl}
-                                    onChange={(e) => setNewProduct({ ...newProduct, imagemUrl: e.target.value })}
-                                    placeholder="https://exemplo.com/imagem.jpg"
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"
-                                />
+                                <label className="text-sm font-semibold text-slate-700">Imagem do Produto</label>
+                                <div className="flex flex-col gap-4">
+                                    {(previewUrl || newProduct.imagemUrl) && (
+                                        <div className="relative size-32 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                                            <img
+                                                src={previewUrl || newProduct.imagemUrl}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedFile(null);
+                                                    setPreviewUrl(null);
+                                                    setNewProduct(prev => ({ ...prev, imagemUrl: "" }));
+                                                }}
+                                                className="absolute top-1 right-1 p-1 bg-white/80 rounded-full shadow-sm hover:bg-white text-red-500 transition-colors"
+                                            >
+                                                <X className="size-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-xl hover:bg-slate-50 hover:border-primary transition-all cursor-pointer group">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <Upload className="size-8 text-slate-400 group-hover:text-primary transition-colors mb-2" />
+                                            <p className="text-sm text-slate-500">
+                                                <span className="font-semibold">Clique para anexar</span> ou arraste
+                                            </p>
+                                            <p className="text-xs text-slate-400">PNG, JPG ou WEBP (Max. 5MB)</p>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                        />
+                                    </label>
+                                </div>
                             </div>
 
                             <div className="pt-4 flex gap-3">

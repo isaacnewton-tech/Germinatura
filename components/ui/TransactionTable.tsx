@@ -10,12 +10,20 @@ interface TransactionTableProps {
     transactions: Transaction[];
 }
 
+import { useRouter } from "next/navigation";
+
 export function TransactionTable({ transactions }: TransactionTableProps) {
+    const router = useRouter();
     return (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
                 <h4 className="font-bold text-lg">Últimas Transações</h4>
-                <button className="text-sm text-primary font-semibold hover:underline">Ver Todas</button>
+                <button
+                    onClick={() => router.push("/transacoes")}
+                    className="text-sm text-primary font-semibold hover:underline cursor-pointer"
+                >
+                    Ver Todas
+                </button>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">

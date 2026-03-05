@@ -29,10 +29,31 @@ export async function GET() {
     }
 }
 
+import { writeFile } from "fs/promises";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+
 export async function POST(request: Request) {
     try {
-        const body = await request.json();
-        const { nome, preco, ativo, imagemUrl } = body;
+        const formData = await request.formData();
+        const nome = formData.get("nome") as string;
+        const preco = formData.get("preco") as string;
+        const ativo = formData.get("ativo") === "true";
+        const file = formData.get("imagem") as File | null;
+
+        let imagemUrl = formData.get("imagemUrl") as string | null;
+
+        if (file && file.size > 0) {
+            const bytes = await file.arrayBuffer();
+            const buffer = Buffer.from(bytes);
+
+            const fileExtension = path.extname(file.name);
+            const fileName = `${uuidv4()}${fileExtension}`;
+            const publicPath = path.join(process.cwd(), "public", "uploads", fileName);
+
+            await writeFile(publicPath, buffer);
+            imagemUrl = `/uploads/${fileName}`;
+        }
 
         const produto = await prisma.produto.create({
             data: {
@@ -57,7 +78,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error("Erro ao criar produto:", error);
         return NextResponse.json(
-            { error: "Erro ao criar produto" },
+            { error: `Erro ao criar produto: ${error instanceof Error ? error.message : "Erro desconhecido"}` },
             { status: 500 }
         );
     }

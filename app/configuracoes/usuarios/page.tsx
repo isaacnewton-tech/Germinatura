@@ -289,7 +289,7 @@ export default function UsuariosPage() {
                                     onChange={e => setFormData({ ...formData, perfil: e.target.value as any })}
                                     className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none"
                                 >
-                                    <option value="VENDEDOR">Vendedor (Sò PDV)</option>
+                                    <option value="VENDEDOR">Vendedor (Só PDV)</option>
                                     <option value="ADMIN">Administrador (Total)</option>
                                 </select>
                             </div>

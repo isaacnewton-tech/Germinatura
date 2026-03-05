@@ -37,14 +37,23 @@ export async function GET(
     }
 }
 
+import { writeFile } from "fs/promises";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id } = await params;
-        const body = await request.json();
-        const { nome, preco, ativo, imagemUrl } = body;
+        const formData = await request.formData();
+
+        const nome = formData.get("nome") as string | null;
+        const preco = formData.get("preco") as string | null;
+        const ativo = formData.get("ativo") as string | null;
+        const file = formData.get("imagem") as File | null;
+        let imagemUrl = formData.get("imagemUrl") as string | null;
 
         // Buscar o produto para ter os valores atuais
         const currentProduct = await prisma.produto.findUnique({
@@ -61,13 +70,25 @@ export async function PUT(
             return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
         }
 
+        if (file && file.size > 0) {
+            const bytes = await file.arrayBuffer();
+            const buffer = Buffer.from(bytes);
+
+            const fileExtension = path.extname(file.name);
+            const fileName = `${uuidv4()}${fileExtension}`;
+            const publicPath = path.join(process.cwd(), "public", "uploads", fileName);
+
+            await writeFile(publicPath, buffer);
+            imagemUrl = `/uploads/${fileName}`;
+        }
+
         const data: any = {};
-        if (nome !== undefined) data.nome = nome;
-        if (ativo !== undefined) data.ativo = ativo;
-        if (imagemUrl !== undefined) data.imagemUrl = imagemUrl;
+        if (nome !== null) data.nome = nome;
+        if (ativo !== null) data.ativo = ativo === "true";
+        if (imagemUrl !== null) data.imagemUrl = imagemUrl;
 
         // Lógica de preço
-        if (preco !== undefined) {
+        if (preco !== null) {
             const currentPrice = currentProduct.precos[0]?.valor;
             const newPrice = parseFloat(preco);
 
@@ -98,7 +119,7 @@ export async function PUT(
     } catch (error) {
         console.error("Erro ao atualizar produto:", error);
         return NextResponse.json(
-            { error: "Erro ao atualizar produto" },
+            { error: `Erro ao atualizar produto: ${error instanceof Error ? error.message : "Erro desconhecido"}` },
             { status: 500 }
         );
     }
