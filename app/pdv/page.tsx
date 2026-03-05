@@ -13,7 +13,8 @@ import {
     Utensils,
     Beer,
     Cookie,
-    Loader2
+    Loader2,
+    ArrowLeft
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { montarPayloadPix } from "@/lib/pix";
@@ -161,6 +162,15 @@ export default function PDVMobile() {
             {/* Top Header Component */}
             <header className="sticky top-0 z-30 flex items-center justify-between bg-white/80 px-4 py-4 backdrop-blur-md border-b border-slate-200">
                 <div className="flex items-center gap-3">
+                    {user?.perfil === 'ADMIN' && (
+                        <button
+                            onClick={() => router.push("/")}
+                            className="cursor-pointer mr-1 p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+                            title="Voltar ao Painel"
+                        >
+                            <ArrowLeft className="size-6" />
+                        </button>
+                    )}
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
                         <User className="size-5" />
                     </div>

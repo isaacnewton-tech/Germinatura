@@ -16,6 +16,7 @@ model Usuario {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
   vendas       Venda[]
+  transacoes   TransacaoFinanceira[]
 }
 
 model Produto {
@@ -65,9 +66,11 @@ model TransacaoFinanceira {
   descricao    String
   valor        Float
   data         DateTime      @default(now())
+  usuarioId    String?
   criadoEm     DateTime      @default(now())
   atualizadoEm DateTime      @updatedAt
   venda        Venda?
+  usuario      Usuario?      @relation(fields: [usuarioId], references: [id])
 }
 
 enum Perfil {
@@ -78,4 +81,12 @@ enum Perfil {
 enum TipoTransacao {
   ENTRADA
   SAIDA
+}
+
+model Configuracao {
+  id           String   @id @default(cuid())
+  chave        String   @unique
+  valor        String
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 }

@@ -13,9 +13,11 @@ import {
     Loader2
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/Toast";
 
 export default function FluxoCaixa() {
     const router = useRouter();
+    const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         tipo: "ENTRADA",
@@ -28,7 +30,7 @@ export default function FluxoCaixa() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.valor || !formData.categoria) {
-            alert("Por favor, preencha o valor e a categoria.");
+            showToast("Por favor, preencha o valor e a categoria.", "warning");
             return;
         }
 
@@ -44,14 +46,14 @@ export default function FluxoCaixa() {
             });
 
             if (response.ok) {
-                alert("Transação salva com sucesso!");
+                showToast("Transação salva com sucesso!", "success");
                 router.push("/");
             } else {
-                alert("Erro ao salvar transação.");
+                showToast("Erro ao salvar transação.", "error");
             }
         } catch (error) {
             console.error("Erro:", error);
-            alert("Erro de conexão.");
+            showToast("Erro de conexão.", "error");
         } finally {
             setLoading(false);
         }

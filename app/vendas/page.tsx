@@ -10,9 +10,12 @@ import {
     Loader2,
     X,
     Receipt,
-    ArrowLeft
+    ArrowLeft,
+    Trash2,
+    AlertTriangle
 } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/Toast";
 
 interface ItemVenda {
     id: string;
@@ -41,6 +44,10 @@ export default function VendasPage() {
     const [loading, setLoading] = useState(true);
     const [selectedVenda, setSelectedVenda] = useState<Venda | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [vendaParaExcluir, setVendaParaExcluir] = useState<Venda | null>(null);
+    const [confirmacaoTexto, setConfirmacaoTexto] = useState("");
+    const [excluindo, setExcluindo] = useState(false);
+    const { showToast } = useToast();
 
     useEffect(() => {
         const fetchVendas = async () => {
@@ -70,6 +77,31 @@ export default function VendasPage() {
         venda.usuario?.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         venda.itens.some(item => item.produto.nome.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
+    const handleExcluirVenda = async () => {
+        if (!vendaParaExcluir) return;
+
+        setExcluindo(true);
+        try {
+            const res = await fetch(`/api/vendas/${vendaParaExcluir.id}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                setVendas(vendas.filter(v => v.id !== vendaParaExcluir.id));
+                setVendaParaExcluir(null);
+                setConfirmacaoTexto("");
+                showToast("Venda excluída com sucesso!", "success");
+            } else {
+                showToast("Erro ao excluir venda", "error");
+            }
+        } catch (error) {
+            console.error("Erro ao excluir venda:", error);
+            showToast("Erro de conexão ao excluir venda", "error");
+        } finally {
+            setExcluindo(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -163,6 +195,7 @@ export default function VendasPage() {
                                             <button
                                                 onClick={() => setSelectedVenda(venda)}
                                                 className="p-2 text-slate-400 hover:text-primary transition-colors hover:bg-slate-100 rounded-lg"
+                                                title="Detalhes"
                                             >
                                                 <ChevronRight className="size-5" />
                                             </button>
@@ -255,13 +288,82 @@ export default function VendasPage() {
                             </div>
                         </div>
 
-                        <div className="p-6 border-t border-slate-100">
+                        <div className="p-6 border-t border-slate-100 space-y-3">
+                            <button
+                                onClick={() => {
+                                    setVendaParaExcluir(selectedVenda);
+                                    setConfirmacaoTexto("");
+                                }}
+                                className="w-full py-4 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-all border border-red-100 flex items-center justify-center gap-2"
+                            >
+                                <Trash2 className="size-5" />
+                                Excluir Venda
+                            </button>
                             <button
                                 onClick={() => setSelectedVenda(null)}
                                 className="w-full py-4 text-slate-600 font-bold rounded-xl hover:bg-slate-100 transition-all border border-slate-200"
                             >
                                 Fechar Detalhes
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Delete Confirmation Modal */}
+            {vendaParaExcluir && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
+                    <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden">
+                        <div className="p-6 text-center space-y-4">
+                            <div className="size-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <AlertTriangle className="size-8" />
+                            </div>
+
+                            <h3 className="text-xl font-bold text-slate-900">Confirmar Exclusão</h3>
+
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-600 text-left">
+                                <p>Para confirmar a exclusão, digite a mensagem abaixo exatamente como mostrada:</p>
+                                <p className="mt-2 font-mono font-bold text-slate-900 bg-white p-2 border border-slate-200 rounded text-center">
+                                    excluir venda de {vendaParaExcluir.usuario?.nome || "Sistema"}
+                                </p>
+                            </div>
+
+                            <input
+                                type="text"
+                                autoFocus
+                                value={confirmacaoTexto}
+                                onChange={(e) => setConfirmacaoTexto(e.target.value)}
+                                placeholder="Digite a mensagem de confirmação..."
+                                className="w-full px-4 py-3 bg-white border-2 border-slate-100 focus:border-red-500 rounded-xl outline-none transition-all text-center font-medium"
+                            />
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => {
+                                        setVendaParaExcluir(null);
+                                        setConfirmacaoTexto("");
+                                    }}
+                                    className="flex-1 py-3 text-slate-600 font-bold rounded-xl hover:bg-slate-100 transition-all"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    disabled={confirmacaoTexto !== `excluir venda de ${vendaParaExcluir.usuario?.nome || "Sistema"}` || excluindo}
+                                    onClick={async () => {
+                                        await handleExcluirVenda();
+                                        setSelectedVenda(null); // Close details modal too
+                                    }}
+                                    className="cursor-pointer flex-[1.5] py-3 bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2"
+                                >
+                                    {excluindo ? (
+                                        <Loader2 className="size-5 animate-spin" />
+                                    ) : (
+                                        <>
+                                            <Trash2 className="size-5" />
+                                            Confirmar Exclusão
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
