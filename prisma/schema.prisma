@@ -8,15 +8,15 @@ datasource db {
 }
 
 model Usuario {
-  id           String   @id @default(cuid())
+  id           String                @id @default(cuid())
   nome         String
-  email        String   @unique
+  email        String                @unique
   senha        String
-  perfil       Perfil   @default(VENDEDOR)
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  vendas       Venda[]
+  perfil       Perfil                @default(VENDEDOR)
+  criadoEm     DateTime              @default(now())
+  atualizadoEm DateTime              @updatedAt
   transacoes   TransacaoFinanceira[]
+  vendas       Venda[]
 }
 
 model Produto {
@@ -66,11 +66,19 @@ model TransacaoFinanceira {
   descricao    String
   valor        Float
   data         DateTime      @default(now())
-  usuarioId    String?
   criadoEm     DateTime      @default(now())
   atualizadoEm DateTime      @updatedAt
-  venda        Venda?
+  usuarioId    String?
   usuario      Usuario?      @relation(fields: [usuarioId], references: [id])
+  venda        Venda?
+}
+
+model Configuracao {
+  id           String   @id @default(cuid())
+  chave        String   @unique
+  valor        String
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 }
 
 enum Perfil {
@@ -81,12 +89,4 @@ enum Perfil {
 enum TipoTransacao {
   ENTRADA
   SAIDA
-}
-
-model Configuracao {
-  id           String   @id @default(cuid())
-  chave        String   @unique
-  valor        String
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
 }
