@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/auth";
 
-const protectedRoutes = ["/", "/vendas", "/produtos", "/fluxo-caixa", "/pdv"];
-const adminOnlyRoutes = ["/", "/vendas", "/produtos", "/fluxo-caixa"];
+const adminOnlyRoutes = ["/", "/vendas", "/produtos", "/fluxo-caixa", "/transacoes", "/configuracoes"];
+const publicRoutes = ["/login"];
 
 export default async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname;
-    const isProtectedRoute = protectedRoutes.includes(path);
-    const isAdminOnlyRoute = adminOnlyRoutes.includes(path);
+    const isPublicRoute = publicRoutes.includes(path);
+    const isAdminOnlyRoute = adminOnlyRoutes.some(route =>
+        route === "/" ? path === "/" : path.startsWith(route)
+    );
 
     const cookie = req.cookies.get("session")?.value;
     let session = null;
@@ -20,12 +22,12 @@ export default async function middleware(req: NextRequest) {
         }
     }
 
-    // Se for rota protegida e não tiver sessão, manda para /login
-    if (isProtectedRoute && !session) {
+    // 1. Se não estiver logado e não for rota pública, redireciona para login
+    if (!session && !isPublicRoute) {
         return NextResponse.redirect(new URL("/login", req.nextUrl));
     }
 
-    // Se já estiver logado e tentar ir para /login, manda para a home apropriada
+    // 2. Se já estiver logado e tentar ir para /login, redireciona para a home apropriada
     if (path === "/login" && session) {
         if (session.user.perfil === "ADMIN") {
             return NextResponse.redirect(new URL("/", req.nextUrl));
@@ -33,9 +35,14 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL("/pdv", req.nextUrl));
     }
 
-    // Se for VENDEDOR e tentar acessar rota de ADMIN, manda para /pdv
-    if (isAdminOnlyRoute && session?.user.perfil === "VENDEDOR") {
-        return NextResponse.redirect(new URL("/pdv", req.nextUrl));
+    // 3. Verificação de permissões por perfil
+    if (session) {
+        // Se for VENDEDOR, ele SÓ pode acessar /pdv
+        if (session.user.perfil === "VENDEDOR") {
+            if (path !== "/pdv" && !path.startsWith("/pdv/")) {
+                return NextResponse.redirect(new URL("/pdv", req.nextUrl));
+            }
+        }
     }
 
     return NextResponse.next();
