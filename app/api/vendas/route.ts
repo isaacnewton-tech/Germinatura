@@ -49,6 +49,7 @@ export async function POST(request: Request) {
                     descricao: `Venda PDV - ${itens.length} itens`,
                     valor: parseFloat(total),
                     data: new Date(),
+                    usuarioId: usuarioId || null,
                 },
             });
 
