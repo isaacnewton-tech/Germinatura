@@ -44,25 +44,58 @@ export async function POST(request: Request) {
             // 1. Validar e descontar estoque (se não foi descontado previamente)
             if (!estoqueJaDescontado) {
                 for (const item of itens) {
+                    console.log(`[DEBUG PDV] Processando item: ${item.produtoId}, Qtd: ${item.quantidade}`);
+
+                    // Buscar se o produto é promocional e tem pai
+                    const query = `
+                        SELECT p.id, p.nome, p."isPromocional", p."produtoPaiId", pr."quantidadeMinima"
+                        FROM "Produto" p
+                        LEFT JOIN "Promocao" pr ON p."promocaoId" = pr.id
+                        WHERE p.id = '${item.produtoId}'
+                    `;
+
+                    const produtoInfoArr: any[] = await tx.$queryRawUnsafe(query);
+                    const produtoInfo = produtoInfoArr[0] || {};
+                    console.log(`[DEBUG PDV] Dados SQL:`, JSON.stringify(produtoInfo));
+
+                    let targetId = item.produtoId;
+                    let quantADescontar = item.quantidade;
+
+                    // Tentar capturar campos em qualquer casing (Postgres pode ser chato com quotes)
+                    const isPromoField = produtoInfo.isPromocional ?? produtoInfo.ispromocional ?? false;
+                    const paiIdField = produtoInfo.produtoPaiId ?? produtoInfo.produtopaiid ?? null;
+                    const qtdMinField = Number(produtoInfo.quantidadeMinima ?? produtoInfo.quantidademinima ?? 1);
+
+                    const isPromo = isPromoField === true || isPromoField === 'true' || isPromoField === 1;
+                    const paiId = paiIdField;
+
+                    if (isPromo && paiId) {
+                        targetId = paiId;
+                        quantADescontar = item.quantidade * qtdMinField;
+                        console.log(`[DEBUG PDV] COMBO DETECTADO! Redirecionando: ${item.produtoId} -> ${targetId} (Qtd: ${quantADescontar})`);
+                    } else {
+                        console.log(`[DEBUG PDV] Produto Normal (isPromo:${isPromo}, paiId:${paiId})`);
+                    }
+
                     // Update atômico com ACID
                     const result: any[] = await tx.$queryRawUnsafe(`
                         UPDATE "Produto"
                         SET estoque = estoque - $1, "atualizadoEm" = CURRENT_TIMESTAMP
                         WHERE id = $2 AND estoque >= $1
                         RETURNING id, nome, estoque
-                    `, item.quantidade, item.produtoId);
+                    `, quantADescontar, targetId);
 
                     if (result.length === 0) {
                         // Falhou o update - o produto não existe ou não tem estoque
                         const prod: any[] = await tx.$queryRawUnsafe(
                             `SELECT nome, estoque FROM "Produto" WHERE id = $1`,
-                            item.produtoId
+                            targetId
                         );
 
                         if (prod.length === 0) {
-                            throw new Error(`Produto não encontrado: ${item.produtoId}`);
+                            throw new Error(`Produto não encontrado: ${targetId}`);
                         } else {
-                            throw new Error(`Estoque insuficiente para ${prod[0].nome}. Disponível: ${prod[0].estoque}, Solicitado: ${item.quantidade}`);
+                            throw new Error(`Estoque insuficiente para ${prod[0].nome}. Disponível: ${prod[0].estoque}, Solicitado: ${quantADescontar}`);
                         }
                     }
                 }

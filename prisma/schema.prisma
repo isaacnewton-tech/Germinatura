@@ -31,6 +31,15 @@ model Produto {
   itensReserva ItemReserva[]
   itensVenda   ItemVenda[]
   precos       PrecoProduto[]
+
+  // Promoções
+  isPromocional Boolean @default(false)
+  produtoPaiId  String?
+  promocaoId    String?
+
+  produtoPai      Produto?  @relation("ProdutosFilhos", fields: [produtoPaiId], references: [id])
+  produtosFilhos  Produto[] @relation("ProdutosFilhos")
+  promocao        Promocao? @relation(fields: [promocaoId], references: [id])
 }
 
 model PrecoProduto {
@@ -39,6 +48,20 @@ model PrecoProduto {
   produtoId String
   criadoEm  DateTime @default(now())
   produto   Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+}
+
+model Promocao {
+  id               String        @id @default(cuid())
+  produtoId        String
+  tipo             TipoPromocao
+  valorDesconto    Float? // Usado para VALOR (%) ou Preço Fixo (QUANTIDADE)
+  quantidadeMinima Int? // Usado para QUANTIDADE
+  dataInicio       DateTime
+  dataFim          DateTime
+  ativo            Boolean       @default(true)
+  criadoEm         DateTime      @default(now())
+  atualizadoEm     DateTime      @updatedAt
+  produtos         Produto[]
 }
 
 model Venda {
@@ -119,4 +142,9 @@ enum StatusReserva {
   APROVADA
   CANCELADA
   CONCLUIDA
+}
+
+enum TipoPromocao {
+  VALOR
+  QUANTIDADE
 }
