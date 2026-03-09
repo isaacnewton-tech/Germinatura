@@ -45,13 +45,28 @@ export async function PUT(
 ) {
     try {
         const { id } = await params;
-        const formData = await request.formData();
+        const contentType = request.headers.get("content-type") || "";
+        let nome: string | null = null;
+        let preco: string | null = null;
+        let ativo: boolean | null = null;
+        let imagemUrl: string | null = null;
+        let file: File | null = null;
 
-        const nome = formData.get("nome") as string | null;
-        const preco = formData.get("preco") as string | null;
-        const ativo = formData.get("ativo") as string | null;
-        const file = formData.get("imagem") as File | null;
-        let imagemUrl = formData.get("imagemUrl") as string | null;
+        if (contentType.includes("application/json")) {
+            const body = await request.json();
+            nome = body.nome ?? null;
+            preco = body.preco ?? null;
+            ativo = body.ativo ?? null;
+            imagemUrl = body.imagemUrl ?? null;
+        } else {
+            const formData = await request.formData();
+            nome = formData.get("nome") as string | null;
+            preco = formData.get("preco") as string | null;
+            const ativoStr = formData.get("ativo") as string | null;
+            ativo = ativoStr !== null ? ativoStr === "true" : null;
+            file = formData.get("imagem") as File | null;
+            imagemUrl = formData.get("imagemUrl") as string | null;
+        }
 
         // Buscar o produto para ter os valores atuais
         const currentProduct = await prisma.produto.findUnique({
@@ -77,7 +92,7 @@ export async function PUT(
 
         const data: any = {};
         if (nome !== null) data.nome = nome;
-        if (ativo !== null) data.ativo = ativo === "true";
+        if (ativo !== null) data.ativo = ativo;
         if (imagemUrl !== null) data.imagemUrl = imagemUrl;
 
         // Lógica de preço

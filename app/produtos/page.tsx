@@ -65,6 +65,7 @@ export default function GestaoProdutos() {
 
     const toggleStatus = async (id: string, currentStatus: boolean) => {
         try {
+            // Optimistic update
             setProducts(products.map((p: any) => p.id === id ? { ...p, ativo: !currentStatus } : p));
 
             const response = await fetch(`/api/produtos/${id}`, {
@@ -73,11 +74,18 @@ export default function GestaoProdutos() {
                 body: JSON.stringify({ ativo: !currentStatus })
             });
 
-            if (!response.ok) {
+            if (response.ok) {
+                showToast(`Produto ${!currentStatus ? "ativado" : "inativado"} com sucesso!`, "success");
+            } else {
+                // Rollback if failed
                 setProducts(products.map((p: any) => p.id === id ? { ...p, ativo: currentStatus } : p));
+                showToast("Erro ao atualizar status do produto.", "error");
             }
         } catch (error) {
             console.error("Erro ao atualizar status:", error);
+            // Rollback if failed
+            setProducts(products.map((p: any) => p.id === id ? { ...p, ativo: currentStatus } : p));
+            showToast("Erro de conexão ao atualizar status.", "error");
         }
     };
 
