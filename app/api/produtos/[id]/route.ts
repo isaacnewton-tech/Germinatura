@@ -37,9 +37,7 @@ export async function GET(
     }
 }
 
-import { writeFile } from "fs/promises";
-import path from "path";
-import { v4 as uuidv4 } from "uuid";
+
 
 export async function PUT(
     request: Request,
@@ -73,13 +71,8 @@ export async function PUT(
         if (file && file.size > 0) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
-
-            const fileExtension = path.extname(file.name);
-            const fileName = `${uuidv4()}${fileExtension}`;
-            const publicPath = path.join(process.cwd(), "public", "uploads", fileName);
-
-            await writeFile(publicPath, buffer);
-            imagemUrl = `/uploads/${fileName}`;
+            const base64String = buffer.toString("base64");
+            imagemUrl = `data:${file.type};base64,${base64String}`;
         }
 
         const data: any = {};

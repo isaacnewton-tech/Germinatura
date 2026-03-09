@@ -166,16 +166,16 @@ export default function Dashboard() {
               </div>
               <div className="text-right">
                 <span className="text-4xl font-black text-primary">
-                  {Math.min(100, Math.round((data.totalArrecadado / (data.meta || 60000)) * 100))}%
+                  {Math.min(100, Math.max(0, Math.round(((data.saldoAtual || 0) / (data.meta || 60000)) * 100)))}%
                 </span>
-                <span className="text-xs font-bold text-slate-400 ml-1 uppercase tracking-widest">Arrecadado</span>
+                <span className="text-xs font-bold text-slate-400 ml-1 uppercase tracking-widest">Saldo Atual</span>
               </div>
             </div>
 
             <div className="w-full bg-slate-100 h-6 rounded-2xl overflow-hidden p-1.5 border border-slate-50">
               <div
                 className="bg-primary h-full rounded-xl transition-all duration-1000 ease-out shadow-lg shadow-primary/30 relative"
-                style={{ width: `${Math.min(100, (data.totalArrecadado / (data.meta || 60000)) * 100)}%` }}
+                style={{ width: `${Math.min(100, Math.max(0, ((data.saldoAtual || 0) / (data.meta || 60000)) * 100))}%` }}
               >
                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
               </div>
@@ -184,7 +184,7 @@ export default function Dashboard() {
             <div className="flex justify-between mt-4">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Atual</span>
-                <span className="text-slate-900 border-l-2 border-emerald-500 pl-2">R$ {(data.totalArrecadado ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                <span className="text-slate-900 border-l-2 border-emerald-500 pl-2">R$ {(data.saldoAtual ?? 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Objetivo</span>
