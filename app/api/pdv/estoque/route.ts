@@ -26,6 +26,27 @@ export async function POST(request: Request) {
                     throw new Error("Item inválido no array de itens.");
                 }
 
+                // 1. Buscar info do produto p/ ver se é combo
+                const infoArr: any[] = await tx.$queryRawUnsafe(`
+                    SELECT p.id, p."isPromocional", p."produtoPaiId", pr."quantidadeMinima", p.nome
+                    FROM "Produto" p
+                    LEFT JOIN "Promocao" pr ON p."promocaoId" = pr.id
+                    WHERE p.id = $1
+                `, item.produtoId);
+
+                const info = infoArr[0] || {};
+                const isPromo = info.isPromocional === true || info.ispromocional === true || info.isPromocional === 1 || info.ispromocional === 1;
+                const paiId = info.produtoPaiId || info.produtopaiid;
+                const qtdMin = Number(info.quantidadeMinima || info.quantidademinima || 1);
+
+                let targetId = item.produtoId;
+                let quantFinal = item.quantidade;
+
+                if (isPromo && paiId) {
+                    targetId = paiId;
+                    quantFinal = item.quantidade * qtdMin;
+                }
+
                 // Se for reservar, verifica se tem estoque suficiente e desconta
                 if (action === "reservar") {
                     // Update atômico com ACID
@@ -34,36 +55,28 @@ export async function POST(request: Request) {
                         SET estoque = estoque - $1, "atualizadoEm" = CURRENT_TIMESTAMP
                         WHERE id = $2 AND estoque >= $1
                         RETURNING id, nome, estoque
-                    `, item.quantidade, item.produtoId);
+                    `, quantFinal, targetId);
 
                     if (result.length === 0) {
                         // Falhou o update - o produto não existe ou não tem estoque
                         const prod: any[] = await tx.$queryRawUnsafe(
                             `SELECT nome, estoque FROM "Produto" WHERE id = $1`,
-                            item.produtoId
+                            targetId
                         );
 
                         if (prod.length === 0) {
-                            throw new Error(`Produto não encontrado: ${item.produtoId}`);
+                            throw new Error(`Produto não encontrado: ${targetId}`);
                         } else {
-                            throw new Error(`Estoque insuficiente para ${prod[0].nome}. Disponível: ${prod[0].estoque}, Solicitado: ${item.quantidade}`);
+                            throw new Error(`Estoque insuficiente para ${info.nome || prod[0].nome}. Disponível: ${prod[0].estoque}, Solicitado: ${quantFinal}`);
                         }
                     }
                 } else if (action === "liberar") {
                     // Efetua a liberação (incrementa)
-                    try {
-                        await tx.produto.update({
-                            where: { id: item.produtoId },
-                            data: { estoque: { increment: item.quantidade } }
-                        });
-                    } catch (updateError: any) {
-                        console.warn(`Estoque API: Prisma increment failed, using raw SQL`);
-                        await tx.$executeRawUnsafe(
-                            `UPDATE "Produto" SET estoque = estoque + $1 WHERE id = $2`,
-                            item.quantidade,
-                            item.produtoId
-                        );
-                    }
+                    await tx.$executeRawUnsafe(
+                        `UPDATE "Produto" SET estoque = estoque + $1 WHERE id = $2`,
+                        quantFinal,
+                        targetId
+                    );
                 }
             }
             return { success: true, action };

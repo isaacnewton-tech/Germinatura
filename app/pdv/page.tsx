@@ -24,6 +24,9 @@ interface Product {
     id: string;
     nome: string;
     preco: number;
+    precoOriginal?: number;
+    temDesconto?: boolean;
+    isPromocional?: boolean;
     ativo: boolean;
     imagemUrl?: string;
     estoque: number;
@@ -381,9 +384,25 @@ export default function PDVMobile() {
                             </div>
                             <div className="flex flex-1 flex-col justify-between">
                                 <div>
-                                    <h3 className="text-base font-bold text-slate-900">{product.nome}</h3>
+                                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                                        {product.nome}
+                                        {(product.temDesconto || product.isPromocional) && (
+                                            <span className="bg-amber-100 text-amber-700 text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-tighter shrink-0">
+                                                EM PROMOÇÃO
+                                            </span>
+                                        )}
+                                    </h3>
                                     <div className="flex items-center gap-3">
-                                        <p className="text-lg font-bold text-primary">R$ {product.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+                                        <div className="flex flex-col">
+                                            {product.temDesconto && product.precoOriginal && (
+                                                <span className="text-[10px] font-bold text-slate-400 line-through leading-none">
+                                                    R$ {product.precoOriginal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                                </span>
+                                            )}
+                                            <p className="text-lg font-bold text-primary leading-tight">
+                                                R$ {product.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                            </p>
+                                        </div>
                                         <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${product.estoque > 5 ? 'bg-emerald-50 text-emerald-600' :
                                             product.estoque > 0 ? 'bg-amber-50 text-amber-600' :
                                                 'bg-rose-50 text-rose-600'
@@ -467,7 +486,14 @@ export default function PDVMobile() {
                     <div className="my-6 space-y-2 rounded-xl bg-slate-50 p-4 border border-slate-100">
                         {cartItems.map((p: any) => (
                             <div key={p.id} className="flex justify-between text-sm">
-                                <span className="text-slate-600">{cart[p.id]}x {p.nome}</span>
+                                <span className="text-slate-600 flex items-center gap-1.5">
+                                    {cart[p.id]}x {p.nome}
+                                    {(p.temDesconto || p.isPromocional) && (
+                                        <span className="bg-amber-100 text-amber-700 text-[7px] font-black px-1 py-0.5 rounded uppercase shrink-0">
+                                            PROMO
+                                        </span>
+                                    )}
+                                </span>
                                 <span className="font-medium text-slate-900">
                                     R$ {(p.preco * cart[p.id]).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                                 </span>
