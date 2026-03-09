@@ -33,10 +33,13 @@ export function Sidebar() {
         { name: "Dashboard", href: "/", icon: LayoutDashboard, roles: ["ADMIN"] },
         { name: "Vendas", href: "/vendas", icon: History, roles: ["ADMIN"] },
         { name: "Produtos", href: "/produtos", icon: Package, roles: ["ADMIN"] },
+        { name: "Estoque", href: "/admin/estoque", icon: Package, roles: ["ADMIN"] },
         { name: "Financeiro", href: "/fluxo-caixa", icon: Landmark, roles: ["ADMIN"] },
         { name: "Transações", href: "/transacoes", icon: ArrowRightLeft, roles: ["ADMIN"] },
         { name: "Usuários", href: "/configuracoes/usuarios", icon: Users, roles: ["ADMIN"] },
         { name: "PDV (Ponto de Venda)", href: "/pdv", icon: ShoppingBag, roles: ["ADMIN", "VENDEDOR"] },
+        { name: "Minhas Reservas", href: "/reservas", icon: History, roles: ["CONSUMER"] },
+        { name: "Gestão Reservas", href: "/admin/reservas", icon: History, roles: ["ADMIN"] },
     ];
 
     const fetchUser = async () => {
@@ -72,7 +75,7 @@ export function Sidebar() {
         }
     };
 
-    if (pathname === "/login" || pathname === "/pdv") return null;
+    if (pathname === "/login" || pathname === "/cadastro" || pathname === "/pdv") return null;
 
     if (loading) {
         return (

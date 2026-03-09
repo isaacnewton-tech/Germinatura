@@ -23,6 +23,7 @@ export async function POST(request: Request) {
             email: user.email,
             perfil: user.perfil,
             nome: user.nome,
+            needsPasswordReset: password === "a12",
         });
 
         return NextResponse.json({

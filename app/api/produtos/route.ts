@@ -13,10 +13,22 @@ export async function GET() {
             orderBy: { criadoEm: "desc" },
         });
 
+        // Buscar estoques de forma bruta para contornar problemas de sincronia do Prisma Client
+        let estoqueMap: Record<string, number> = {};
+        try {
+            const rawEstoques: any[] = await prisma.$queryRawUnsafe(`SELECT id, estoque FROM "Produto"`);
+            rawEstoques.forEach(item => {
+                estoqueMap[item.id] = item.estoque;
+            });
+        } catch (rawErr) {
+            console.warn("Produtos API: Failed to fetch raw stock:", rawErr);
+        }
+
         // Mapear para incluir o preço mais recente no nível superior para compatibilidade
         const produtos = (produtosRaw as any[]).map((p: any) => ({
             ...p,
-            preco: p.precos[0]?.valor || 0
+            preco: p.precos?.[0]?.valor || 0,
+            estoque: estoqueMap[p.id] !== undefined ? estoqueMap[p.id] : (p.estoque ?? 0)
         }));
 
         return NextResponse.json(produtos);

@@ -15,6 +15,7 @@ model Usuario {
   perfil       Perfil                @default(VENDEDOR)
   criadoEm     DateTime              @default(now())
   atualizadoEm DateTime              @updatedAt
+  reservas     Reserva[]
   transacoes   TransacaoFinanceira[]
   vendas       Venda[]
 }
@@ -26,6 +27,8 @@ model Produto {
   imagemUrl    String?
   criadoEm     DateTime       @default(now())
   atualizadoEm DateTime       @updatedAt
+  estoque      Int            @default(0)
+  itensReserva ItemReserva[]
   itensVenda   ItemVenda[]
   precos       PrecoProduto[]
 }
@@ -66,21 +69,30 @@ model TransacaoFinanceira {
   descricao    String
   valor        Float
   data         DateTime      @default(now())
-  usuarioId    String?
   criadoEm     DateTime      @default(now())
   atualizadoEm DateTime      @updatedAt
+  usuarioId    String?
   usuario      Usuario?      @relation(fields: [usuarioId], references: [id])
   venda        Venda?
 }
 
-enum Perfil {
-  ADMIN
-  VENDEDOR
+model Reserva {
+  id           String        @id @default(cuid())
+  usuarioId    String
+  status       StatusReserva @default(PENDENTE)
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+  itens        ItemReserva[]
+  usuario      Usuario       @relation(fields: [usuarioId], references: [id])
 }
 
-enum TipoTransacao {
-  ENTRADA
-  SAIDA
+model ItemReserva {
+  id         String  @id @default(cuid())
+  reservaId  String
+  produtoId  String
+  quantidade Int
+  produto    Produto @relation(fields: [produtoId], references: [id])
+  reserva    Reserva @relation(fields: [reservaId], references: [id])
 }
 
 model Configuracao {
@@ -89,4 +101,22 @@ model Configuracao {
   valor        String
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
+}
+
+enum Perfil {
+  ADMIN
+  VENDEDOR
+  CONSUMER
+}
+
+enum TipoTransacao {
+  ENTRADA
+  SAIDA
+}
+
+enum StatusReserva {
+  PENDENTE
+  APROVADA
+  CANCELADA
+  CONCLUIDA
 }

@@ -26,6 +26,7 @@ interface Product {
     preco: number;
     ativo: boolean;
     imagemUrl?: string;
+    estoque: number;
 }
 
 const getIcon = (nome: string) => {
@@ -81,6 +82,29 @@ export default function PDVMobile() {
             });
     }, []);
 
+    // Calculate cart items early for use in effects and handlers
+    const cartItems = products.filter((p: any) => cart[p.id] > 0);
+
+    // Handle tab closing when modal is open (stock is reserved)
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (isModalOpen && Object.keys(cart).length > 0) {
+                const releaseData = {
+                    action: "liberar",
+                    itens: cartItems.map((p: any) => ({
+                        produtoId: p.id,
+                        quantidade: cart[p.id]
+                    }))
+                };
+                const blob = new Blob([JSON.stringify(releaseData)], { type: 'application/json' });
+                navigator.sendBeacon("/api/pdv/estoque", blob);
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [isModalOpen, cart, cartItems]);
+
     const total = useMemo(() => {
         return Object.entries(cart).reduce((acc: any, [id, qty]) => {
             const product = products.find((p: any) => p.id === id);
@@ -88,10 +112,22 @@ export default function PDVMobile() {
         }, 0);
     }, [cart, products]);
 
+    const { showToast } = useToast();
+
     const updateQuantity = (id: string, delta: number) => {
+        const product = products.find((p: any) => p.id === id);
+        if (!product) return;
+
         setCart((prev: any) => {
             const current = prev[id] || 0;
             const next = Math.max(0, current + delta);
+
+            // Validate against stock
+            if (next > product.estoque) {
+                showToast(`Estoque insuficiente. Apenas ${product.estoque} disponível(is).`, "error");
+                return prev;
+            }
+
             if (next === 0) {
                 const { [id]: _, ...rest } = prev;
                 return rest;
@@ -110,10 +146,129 @@ export default function PDVMobile() {
         });
     }, [total]);
 
-    const cartItems = products.filter((p: any) => cart[p.id] > 0);
+    // Fetch the latest stock from the API and validate the cart
+    const validateStock = async (): Promise<boolean> => {
+        try {
+            const res = await fetch("/api/produtos");
+            if (!res.ok) throw new Error("Falha ao buscar produtos");
+            const latestProducts: Product[] = await res.json();
 
-    const { showToast } = useToast();
+            // Update local products state with fresh stock data
+            setProducts(latestProducts.filter((p) => p.ativo));
 
+            let isValid = true;
+            let errorMessage = "";
+
+            // Check if any item in the cart exceeds the new stock
+            cartItems.forEach((cartItem) => {
+                const latestProduct = latestProducts.find(p => p.id === cartItem.id);
+                const requestedQty = cart[cartItem.id];
+                const availableStock = latestProduct?.estoque || 0;
+
+                if (requestedQty > availableStock) {
+                    isValid = false;
+                    errorMessage = `Estoque insuficiente para ${cartItem.nome}. Solicitado: ${requestedQty}, Disponível: ${availableStock}.`;
+
+                    // Adjust cart to the max available if it's less than requested
+                    setCart((prev) => {
+                        if (availableStock === 0) {
+                            const { [cartItem.id]: _, ...rest } = prev;
+                            return rest;
+                        }
+                        return { ...prev, [cartItem.id]: availableStock };
+                    });
+                }
+            });
+
+            if (!isValid) {
+                showToast(errorMessage, "error");
+                // Close modal if it was open to force user to review the cart
+                setIsModalOpen(false);
+            }
+
+            return isValid;
+        } catch (error) {
+            console.error("Erro ao validar estoque:", error);
+            showToast("Erro ao verificar estoque atualizado.", "error");
+            return false;
+        }
+    };
+
+    // RELEASE STOCK HANDLERS
+    const handleReleaseStock = async () => {
+        if (Object.keys(cart).length === 0) return;
+
+        const releaseData = {
+            action: "liberar",
+            itens: cartItems.map((p: any) => ({
+                produtoId: p.id,
+                quantidade: cart[p.id]
+            }))
+        };
+
+        try {
+            await fetch("/api/pdv/estoque", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(releaseData)
+            });
+        } catch (error) {
+            console.error("Falha ao liberar:", error);
+        }
+    };
+
+    const handleCloseModal = async () => {
+        setIsSaving(true);
+        await handleReleaseStock();
+        // Update local stock silently
+        fetch("/api/produtos")
+            .then(res => res.json())
+            .then((data: any[]) => setProducts(data.filter((p: Product) => p.ativo)));
+        setIsSaving(false);
+        setIsModalOpen(false);
+    };
+
+    // CHECKOUT HANDLER WITH RESERVATION
+    const handleCheckout = async () => {
+        if (total <= 0) return;
+
+        setIsSaving(true);
+        const isValid = await validateStock();
+
+        if (isValid) {
+            try {
+                const reserveData = {
+                    action: "reservar",
+                    itens: cartItems.map((p: any) => ({
+                        produtoId: p.id,
+                        quantidade: cart[p.id]
+                    }))
+                };
+
+                const res = await fetch("/api/pdv/estoque", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(reserveData)
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    showToast(errorData.error || "Erro ao reservar estoque.", "error");
+                    await validateStock(); // Refresh local stock visually
+                    setIsSaving(false);
+                    return;
+                }
+
+                setIsModalOpen(true);
+            } catch (error) {
+                console.error("Erro ao reservar:", error);
+                showToast("Erro de conexão ao reservar estoque.", "error");
+            }
+        }
+        setIsSaving(false);
+    };
+
+    // CONFIRM SALE HANDLER
     const handleConfirmSale = async () => {
         if (isSaving) return;
         setIsSaving(true);
@@ -125,7 +280,8 @@ export default function PDVMobile() {
                     produtoId: p.id,
                     quantidade: cart[p.id],
                     precoUnitario: p.preco
-                }))
+                })),
+                estoqueJaDescontado: true // Skip decrementing algorithm inside /api/vendas
             };
 
             const response = await fetch("/api/vendas", {
@@ -138,6 +294,13 @@ export default function PDVMobile() {
                 setCart({});
                 setIsModalOpen(false);
                 showToast("Venda registrada com sucesso!", "success");
+
+                // Update local stock silently to reflect the current state
+                fetch("/api/produtos")
+                    .then(res => res.json())
+                    .then((data: any[]) => setProducts(data.filter((p: Product) => p.ativo)))
+                    .catch(err => console.error("Erro ao atualizar estoque visual:", err));
+
             } else {
                 showToast("Erro ao registrar venda.", "error");
             }
@@ -219,7 +382,15 @@ export default function PDVMobile() {
                             <div className="flex flex-1 flex-col justify-between">
                                 <div>
                                     <h3 className="text-base font-bold text-slate-900">{product.nome}</h3>
-                                    <p className="text-lg font-bold text-primary">R$ {product.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+                                    <div className="flex items-center gap-3">
+                                        <p className="text-lg font-bold text-primary">R$ {product.preco.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+                                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${product.estoque > 5 ? 'bg-emerald-50 text-emerald-600' :
+                                            product.estoque > 0 ? 'bg-amber-50 text-amber-600' :
+                                                'bg-rose-50 text-rose-600'
+                                            }`}>
+                                            Estoque: {product.estoque}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div className="flex items-center justify-end gap-3">
                                     <button
@@ -235,7 +406,11 @@ export default function PDVMobile() {
                                     <span className="w-8 text-center text-lg font-bold">{cart[product.id] || 0}</span>
                                     <button
                                         onClick={() => updateQuantity(product.id, 1)}
-                                        className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white shadow-md shadow-primary/20 active:scale-95"
+                                        disabled={product.estoque <= 0 || (cart[product.id] || 0) >= product.estoque}
+                                        className={`flex h-10 w-10 items-center justify-center rounded-lg shadow-md active:scale-95 transition-all ${product.estoque <= 0 || (cart[product.id] || 0) >= product.estoque
+                                            ? "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                                            : "bg-primary text-white shadow-primary/20"
+                                            }`}
                                     >
                                         <Plus className="size-5" />
                                     </button>
@@ -255,12 +430,12 @@ export default function PDVMobile() {
                     </span>
                 </div>
                 <button
-                    onClick={() => total > 0 && setIsModalOpen(true)}
-                    disabled={total === 0}
-                    className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all active:scale-[0.97] ${total > 0 ? "bg-primary shadow-primary/30" : "bg-slate-300 cursor-not-allowed shadow-none"
+                    onClick={handleCheckout}
+                    disabled={total === 0 || isSaving}
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-lg font-bold text-white shadow-lg transition-all active:scale-[0.97] ${total > 0 && !isSaving ? "bg-primary shadow-primary/30" : "bg-slate-300 cursor-not-allowed shadow-none"
                         }`}
                 >
-                    <ShoppingCart className="size-6" />
+                    {isSaving ? <Loader2 className="size-6 animate-spin" /> : <ShoppingCart className="size-6" />}
                     Cobrar
                 </button>
             </footer>
@@ -282,7 +457,7 @@ export default function PDVMobile() {
                             <p className="text-sm text-slate-500">Escaneie o QR Code para pagar via PIX</p>
                         </div>
                         <button
-                            onClick={() => setIsModalOpen(false)}
+                            onClick={handleCloseModal}
                             className="p-2 rounded-full hover:bg-slate-100 text-slate-400"
                         >
                             <X className="size-6" />
@@ -334,7 +509,7 @@ export default function PDVMobile() {
                             Confirmar Venda
                         </button>
                         <button
-                            onClick={() => setIsModalOpen(false)}
+                            onClick={handleCloseModal}
                             className="w-full py-2 text-sm font-semibold text-slate-500 hover:text-red-500 transition-colors"
                         >
                             Cancelar Pagamento

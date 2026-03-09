@@ -36,7 +36,7 @@ export function KPICard({
                     <Icon className="size-6" />
                 </div>
             </div>
-            <h3 className="text-3xl font-bold tracking-tight">{value}</h3>
+            <h3 className="text-3xl font-medium tracking-tight whitespace-nowrap">{value}</h3>
             {trend && (
                 <p className={`text-xs font-medium mt-2 flex items-center gap-1 ${trend.isUp ? "text-green-600" : "text-red-600"}`}>
                     <span className="text-sm font-bold">{trend.isUp ? "↑" : "↓"}</span>

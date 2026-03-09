@@ -11,7 +11,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-    if (pathname === "/login" || pathname === "/pdv") {
+    if (pathname === "/login" || pathname === "/cadastro" || pathname === "/pdv") {
         return <>{children}</>;
     }
 
@@ -44,9 +44,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-h-screen min-w-0">
+            <div className="flex-1 flex flex-col h-screen min-w-0">
                 {/* Mobile Header */}
-                <header className="lg:hidden h-16 border-b border-slate-200 bg-white flex items-center justify-between px-4 sticky top-0 z-30">
+                <header className="lg:hidden h-16 border-b border-slate-200 bg-white flex items-center justify-between px-4 shrink-0 z-30">
                     <div className="flex items-center gap-3">
                         <button onClick={toggleSidebar} className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg">
                             <Menu className="size-6" />
@@ -61,7 +61,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-x-hidden">
+                <main className="flex-1 min-h-0 overflow-hidden">
                     {children}
                 </main>
             </div>

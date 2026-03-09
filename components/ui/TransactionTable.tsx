@@ -25,14 +25,14 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
                     Ver Todas
                 </button>
             </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                        <tr>
-                            <th className="px-6 py-4 font-bold">Data</th>
-                            <th className="px-6 py-4 font-bold">Descrição</th>
-                            <th className="px-6 py-4 font-bold text-center">Tipo</th>
-                            <th className="px-6 py-4 font-bold text-right">Valor</th>
+            <div className="overflow-auto max-h-[400px] custom-scrollbar">
+                <table className="w-full text-left border-collapse">
+                    <thead className="sticky top-0 z-10 bg-slate-50 shadow-sm">
+                        <tr className="text-slate-500 text-[10px] font-black uppercase tracking-widest">
+                            <th className="px-6 py-4 border-b border-slate-100">Data</th>
+                            <th className="px-6 py-4 border-b border-slate-100">Descrição</th>
+                            <th className="px-6 py-4 border-b border-slate-100 text-center">Tipo</th>
+                            <th className="px-6 py-4 border-b border-slate-100 text-right">Valor</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -48,7 +48,7 @@ export function TransactionTable({ transactions }: TransactionTableProps) {
                                         {t.tipo === "ENTRADA" ? "Entrada" : "Saída"}
                                     </span>
                                 </td>
-                                <td className={`px-6 py-4 text-sm text-right font-bold ${t.tipo === "ENTRADA" ? "text-green-600" : "text-red-600"
+                                <td className={`px-6 py-4 text-sm text-right font-medium ${t.tipo === "ENTRADA" ? "text-emerald-500" : "text-rose-500"
                                     }`}>
                                     {t.tipo === "ENTRADA" ? "+" : "-"} R$ {t.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                                 </td>

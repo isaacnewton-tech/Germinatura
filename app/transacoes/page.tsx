@@ -5,8 +5,6 @@ import {
     Search,
     Calendar,
     Filter,
-    ArrowUpDown,
-    Download,
     TrendingUp,
     TrendingDown,
     User as UserIcon,
@@ -95,75 +93,72 @@ export default function TransacoesPage() {
         .reduce((acc, t) => acc + t.valor, 0);
 
     return (
-        <div className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight">Histórico de Transações</h2>
-                        <p className="text-sm text-slate-500 mt-1">Visualize e filtre todas as movimentações financeiras do sistema.</p>
-                    </div>
-                </header>
+        <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
+            {/* Header / Filter Area - Fixed */}
+            <div className="bg-white border-b border-slate-200 p-4 md:p-8 shrink-0 relative z-30">
+                <div className="max-w-6xl mx-auto">
+                    <header className="mb-8">
+                        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 uppercase">Transações</h2>
+                        <p className="text-sm text-slate-500 mt-1">Histórico completo de movimentações financeiras.</p>
+                    </header>
 
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                        <div className="size-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                            <TrendingUp className="size-6" />
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center gap-5">
+                            <div className="size-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-200">
+                                <TrendingUp className="size-6" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Arrecadado</p>
+                                <p className="text-2xl font-black text-slate-900">
+                                    R$ {totalArrecadado.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm text-slate-500 font-medium">Total Arrecadado</p>
-                            <p className="text-2xl font-bold text-emerald-600">
-                                R$ {totalArrecadado.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </p>
+                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center gap-5">
+                            <div className="size-12 rounded-xl bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-200">
+                                <TrendingDown className="size-6" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Gasto</p>
+                                <p className="text-2xl font-black text-slate-900">
+                                    R$ {totalGasto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                        <div className="size-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
-                            <TrendingDown className="size-6" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-slate-500 font-medium">Total Gasto</p>
-                            <p className="text-2xl font-bold text-rose-600">
-                                R$ {totalGasto.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
-                {/* Filters */}
-                <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1.5">
-                                <Calendar className="size-3" /> Data Inicial
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Calendar className="size-3" /> Data Início
                             </label>
                             <input
                                 type="date"
                                 value={filters.startDate}
                                 onChange={(e: any) => setFilters({ ...filters, startDate: e.target.value })}
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-primary outline-none transition-all"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1.5">
-                                <Calendar className="size-3" /> Data Final
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                <Calendar className="size-3" /> Data Fim
                             </label>
                             <input
                                 type="date"
                                 value={filters.endDate}
                                 onChange={(e: any) => setFilters({ ...filters, endDate: e.target.value })}
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-primary outline-none transition-all"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1.5">
-                                <UserIcon className="size-3" /> Usuário
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                <UserIcon className="size-3" /> Responsável
                             </label>
                             <select
                                 value={filters.usuarioId}
                                 onChange={(e: any) => setFilters({ ...filters, usuarioId: e.target.value })}
-                                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary outline-none transition-all cursor-pointer"
+                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:ring-2 focus:ring-primary outline-none transition-all cursor-pointer appearance-none"
                             >
                                 <option value="">Todos os usuários</option>
                                 {users.map((u: any) => (
@@ -173,72 +168,79 @@ export default function TransacoesPage() {
                         </div>
                         <button
                             onClick={handleApplyFilters}
-                            className="bg-primary text-white font-bold py-2 rounded-lg hover:bg-primary/90 transition-all flex items-center justify-center gap-2"
+                            className="bg-slate-900 hover:bg-black text-white font-black py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95 shadow-xl shadow-slate-200 uppercase tracking-widest text-xs"
                         >
                             <Filter className="size-4" />
                             Filtrar
                         </button>
                     </div>
                 </div>
+            </div>
 
-                {/* Table */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-slate-50 border-b border-slate-100">
-                                    <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500">Data</th>
-                                    <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500">Descrição</th>
-                                    <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500">Responsável</th>
-                                    <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-center">Tipo</th>
-                                    <th className="px-6 py-4 text-xs font-bold uppercase text-slate-500 text-right">Valor</th>
+            {/* Table Area - Full Height Scroll */}
+            <div className="flex-1 overflow-hidden p-4 md:p-8 flex flex-col">
+                <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col min-h-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="flex-1 overflow-auto custom-scrollbar">
+                        <table className="w-full text-left border-collapse min-w-[800px]">
+                            <thead className="sticky top-0 z-20">
+                                <tr className="bg-slate-50/95 backdrop-blur-sm shadow-sm">
+                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200">Data</th>
+                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200">Descrição / Categoria</th>
+                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200">Responsável</th>
+                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200 text-center">Tipo</th>
+                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200 text-right">Valor</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <Loader2 className="size-8 animate-spin text-primary" />
-                                                <p className="font-medium">Carregando transações...</p>
+                                        <td colSpan={5} className="px-6 py-20 text-center text-slate-400">
+                                            <div className="flex flex-col items-center gap-4">
+                                                <Loader2 className="size-10 animate-spin text-primary" />
+                                                <p className="font-black uppercase tracking-widest text-xs">Atualizando dados...</p>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : transactions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-6 py-12 text-center text-slate-400 italic">
-                                            Nenhuma transação encontrada para os filtros selecionados.
+                                        <td colSpan={5} className="px-6 py-20 text-center">
+                                            <div className="flex flex-col items-center gap-4 opacity-20">
+                                                <Search className="size-16" />
+                                                <p className="font-black uppercase tracking-[0.2em] text-sm">Nada por aqui</p>
+                                            </div>
                                         </td>
                                     </tr>
                                 ) : (
                                     transactions.map((t: any) => (
                                         <tr key={t.id} className="hover:bg-slate-50/50 transition-colors group">
-                                            <td className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap">
-                                                {new Date(t.data).toLocaleDateString("pt-BR")}
+                                            <td className="px-6 py-5 whitespace-nowrap">
+                                                <span className="text-sm font-black text-slate-900">
+                                                    {new Date(t.data).toLocaleDateString("pt-BR")}
+                                                </span>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-5">
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-semibold text-slate-900">{t.descricao}</span>
-                                                    <span className="text-[10px] uppercase font-bold text-slate-400">{t.categoria}</span>
+                                                    <span className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{t.descricao}</span>
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-0.5">{t.categoria}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="size-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="size-8 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500">
                                                         {t.usuario?.nome?.[0] || "?"}
                                                     </div>
-                                                    <span className="text-sm text-slate-600">{t.usuario?.nome || "Sistema"}</span>
+                                                    <span className="text-sm font-bold text-slate-700">{t.usuario?.nome || "Sistema"}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase ${t.tipo === "ENTRADA"
-                                                    ? "bg-emerald-100 text-emerald-700"
-                                                    : "bg-rose-100 text-rose-700"
+                                            <td className="px-6 py-5 text-center">
+                                                <span className={`inline-block px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${t.tipo === "ENTRADA"
+                                                    ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                                    : "bg-rose-100 text-rose-700 border border-rose-200"
                                                     }`}>
                                                     {t.tipo === "ENTRADA" ? "Entrada" : "Saída"}
                                                 </span>
                                             </td>
-                                            <td className={`px-6 py-4 text-right font-bold text-sm ${t.tipo === "ENTRADA" ? "text-emerald-600" : "text-rose-600"
+                                            <td className={`px-6 py-5 text-right font-black text-sm whitespace-nowrap ${t.tipo === "ENTRADA" ? "text-emerald-500" : "text-rose-500"
                                                 }`}>
                                                 {t.tipo === "ENTRADA" ? "+" : "-"} R$ {t.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                                             </td>

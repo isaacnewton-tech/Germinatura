@@ -1,43 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { Loader2, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/components/ui/Toast";
 
-export default function LoginPage() {
+export default function CadastroPage() {
+    const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [senha, setSenha] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const router = useRouter();
     const { showToast } = useToast();
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleCadastro = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
 
         try {
-            const res = await fetch("/api/auth/login", {
+            const res = await fetch("/api/cadastro", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ nome, email, senha }),
             });
 
             if (res.ok) {
-                const data = await res.json();
-                if (data.user.perfil === "ADMIN") {
-                    router.push("/");
-                } else {
-                    router.push("/pdv");
-                }
+                showToast("Conta criada com sucesso! Faça login para continuar.", "success");
+                router.push("/login");
             } else {
                 const data = await res.json();
-                showToast(data.message || "Credenciais inválidas", "error");
-                setError(data.message || "Credenciais inválidas");
+                showToast(data.error || "Erro ao criar conta", "error");
+                setError(data.error || "Erro ao criar conta");
             }
         } catch (err) {
             showToast("Erro ao conectar com o servidor", "error");
@@ -53,22 +50,36 @@ export default function LoginPage() {
                 {/* Logo and Greeting */}
                 <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg shadow-primary/20 text-white mb-4">
-                        {/* <GraduationCap className="size-8" /> */}
                         <img src="https://i.imgur.com/EnMI9CP.png" alt="G" className="rounded-2xl" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tight text-slate-900">Germinatura</h1>
-                    <p className="text-slate-500 font-medium mt-2">Bem-vindo de volta!</p>
+                    <h1 className="text-3xl font-black tracking-tight text-slate-900">Criar Conta</h1>
+                    <p className="text-slate-500 font-medium mt-2">Cadastre-se para reservar produtos</p>
                 </div>
 
-                {/* Login Card */}
+                {/* Registration Card */}
                 <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-in fade-in zoom-in duration-500">
                     <div className="p-8">
-                        <form onSubmit={handleLogin} className="space-y-6">
+                        <form onSubmit={handleCadastro} className="space-y-6">
                             {error && (
                                 <div className="bg-rose-50 border border-rose-100 text-rose-600 px-4 py-3 rounded-xl text-sm font-semibold animate-in shake duration-300">
                                     {error}
                                 </div>
                             )}
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-slate-700 ml-1">Nome Completo</label>
+                                <div className="relative group">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+                                    <input
+                                        required
+                                        type="text"
+                                        value={nome}
+                                        onChange={(e: any) => setNome(e.target.value)}
+                                        placeholder="Seu nome completo"
+                                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-slate-400 font-medium"
+                                    />
+                                </div>
+                            </div>
 
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Email</label>
@@ -91,10 +102,11 @@ export default function LoginPage() {
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                                     <input
                                         required
+                                        minLength={6}
                                         type={showPassword ? "text" : "password"}
-                                        value={password}
-                                        onChange={(e: any) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
+                                        value={senha}
+                                        onChange={(e: any) => setSenha(e.target.value)}
+                                        placeholder="Mínimo 6 caracteres"
                                         className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-slate-400 font-medium"
                                     />
                                     <button
@@ -115,26 +127,24 @@ export default function LoginPage() {
                                 {loading ? (
                                     <Loader2 className="size-6 animate-spin" />
                                 ) : (
-                                    <>
-                                        Entrar na Plataforma
-                                    </>
+                                    <>Cadastrar</>
                                 )}
                             </button>
-                        </form>
 
-                        <div className="pt-6 text-center">
-                            <p className="text-sm font-medium text-slate-500">
-                                Não possui conta?{" "}
-                                <Link href="/cadastro" className="text-primary hover:text-primary/80 font-bold transition-colors">
-                                    Cadastre-se
-                                </Link>
-                            </p>
-                        </div>
+                            <div className="pt-2 text-center">
+                                <p className="text-sm font-medium text-slate-500">
+                                    Já possui conta?{" "}
+                                    <Link href="/login" className="text-primary hover:text-primary/80 font-bold transition-colors">
+                                        Fazer Login
+                                    </Link>
+                                </p>
+                            </div>
+                        </form>
                     </div>
 
                     <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
                         <p className="text-sm text-slate-500 font-medium">
-                            Controle de Comissões e Vendas
+                            Sistema de Reservas Germinatura
                         </p>
                     </div>
                 </div>

@@ -34,14 +34,41 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { total, itens } = body;
+        const { total, itens, estoqueJaDescontado } = body;
 
         const session = await getSession();
         const usuarioId = session?.user?.id;
 
         // Inicia uma transação Prisma para garantir que tudo seja criado ou nada
         const resultado = await prisma.$transaction(async (tx: any) => {
-            // 1. Cria a Transação Financeira de Entrada
+            // 1. Validar e descontar estoque (se não foi descontado previamente)
+            if (!estoqueJaDescontado) {
+                for (const item of itens) {
+                    // Update atômico com ACID
+                    const result: any[] = await tx.$queryRawUnsafe(`
+                        UPDATE "Produto"
+                        SET estoque = estoque - $1, "atualizadoEm" = CURRENT_TIMESTAMP
+                        WHERE id = $2 AND estoque >= $1
+                        RETURNING id, nome, estoque
+                    `, item.quantidade, item.produtoId);
+
+                    if (result.length === 0) {
+                        // Falhou o update - o produto não existe ou não tem estoque
+                        const prod: any[] = await tx.$queryRawUnsafe(
+                            `SELECT nome, estoque FROM "Produto" WHERE id = $1`,
+                            item.produtoId
+                        );
+
+                        if (prod.length === 0) {
+                            throw new Error(`Produto não encontrado: ${item.produtoId}`);
+                        } else {
+                            throw new Error(`Estoque insuficiente para ${prod[0].nome}. Disponível: ${prod[0].estoque}, Solicitado: ${item.quantidade}`);
+                        }
+                    }
+                }
+            }
+
+            // 2. Cria a Transação Financeira de Entrada
             const transacao = await tx.transacaoFinanceira.create({
                 data: {
                     tipo: "ENTRADA",
@@ -53,7 +80,7 @@ export async function POST(request: Request) {
                 },
             });
 
-            // 2. Cria a Venda vinculada à transação
+            // 3. Cria a Venda vinculada à transação
             const venda = await tx.venda.create({
                 data: {
                     total: parseFloat(total),
