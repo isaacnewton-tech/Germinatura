@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 
 export async function POST(request: Request) {
     try {
+        const session = await getSession();
+        if (session?.user?.perfil === "CONSUMER") {
+            return NextResponse.json(
+                { error: "Acesso negado: Consumidores não podem manipular estoque do PDV." },
+                { status: 403 }
+            );
+        }
+
         const body = await request.json();
         const { action, itens } = body;
 
