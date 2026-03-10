@@ -199,7 +199,14 @@ export default function GestaoEstoque() {
                                                         <Package className="size-6 text-slate-300" />
                                                     )}
                                                 </div>
-                                                <span className="font-black text-slate-900">{product.nome}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="font-black text-slate-900">{product.nome}</span>
+                                                    {!product.ativo && (
+                                                        <span className="text-[8px] font-black text-rose-500 bg-rose-50 border border-rose-100 px-1.5 py-0.5 rounded uppercase tracking-tighter w-fit mt-0.5">
+                                                            Inativo
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-center">

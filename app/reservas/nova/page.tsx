@@ -108,9 +108,11 @@ export default function NovaReservaPage() {
         }
     };
 
-    const filteredProdutos = produtos.filter(p =>
-        p.nome.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProdutos = produtos.filter(p => {
+        const matchesSearch = p.nome.toLowerCase().includes(searchTerm.toLowerCase());
+        const isPromotional = (p as any).isPromocional;
+        return matchesSearch && !isPromotional;
+    });
 
     if (loading) {
         return (

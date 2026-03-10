@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const adminView = searchParams.get("adminView") === "true";
         const now = new Date();
 
         // 1. Buscar produtos base ativos
         const produtosBase = await prisma.produto.findMany({
             where: {
                 isPromocional: false,
-                ativo: true
             },
             include: {
                 precos: {
@@ -50,7 +51,6 @@ export async function GET() {
         const combosRaw = await prisma.produto.findMany({
             where: {
                 isPromocional: true,
-                ativo: true
             },
             include: {
                 precos: {
@@ -86,7 +86,7 @@ export async function GET() {
             };
         });
 
-        const combosFiltrados = combosRaw
+        const combosFiltrados = adminView ? [] : combosRaw
             .filter(c => {
                 // Para combos, usamos o promocaoId setado no produto ou buscamos no map
                 // O combo creation já seta o promocaoId
@@ -105,6 +105,8 @@ export async function GET() {
                 const promo = promocoesAtivas.find(p => p.id === c.promocaoId);
                 return {
                     ...c,
+                    // Garante que a imagem seja a do pai, se existir
+                    imagemUrl: c.produtoPai?.imagemUrl || c.imagemUrl,
                     preco: c.precos?.[0]?.valor || 0,
                     promocao: promo,
                     estoque: Math.floor((estoqueMap[c.produtoPaiId!] ?? 0) / (promo?.quantidadeMinima || 1))

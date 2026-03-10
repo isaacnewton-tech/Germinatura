@@ -47,7 +47,7 @@ export default function GestaoProdutos() {
 
     const loadProducts = () => {
         setLoading(true);
-        fetch("/api/produtos")
+        fetch("/api/produtos?adminView=true")
             .then(res => res.json())
             .then((data: any) => {
                 setProducts(data);

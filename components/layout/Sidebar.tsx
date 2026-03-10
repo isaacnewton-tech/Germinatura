@@ -54,9 +54,9 @@ export function Sidebar() {
             children: [
                 { name: "Vendas", href: "/vendas", icon: DollarSign, roles: ["ADMIN"] },
                 { name: "Produtos", href: "/produtos", icon: ShoppingBasket, roles: ["ADMIN"] },
+                { name: "Promoções", href: "/admin/produtos/promocoes", icon: BadgePercent, roles: ["ADMIN"] },
                 { name: "Estoque", href: "/admin/estoque", icon: Package, roles: ["ADMIN"] },
                 { name: "Reservas", href: "/admin/reservas", icon: CalendarClock, roles: ["ADMIN"] },
-                { name: "Promoções", href: "/admin/produtos/promocoes", icon: BadgePercent, roles: ["ADMIN"] },
                 { name: "Ponto de Venda", href: "/pdv", icon: ShoppingBag, roles: ["ADMIN", "VENDEDOR"] },
             ]
         },
