@@ -67,6 +67,11 @@ export default function PDVMobile() {
                 if (res.ok) {
                     const data = await res.json();
                     setUser(data.user);
+
+                    // Redirect Consumers away from PDV
+                    if (data.user?.perfil === "CONSUMER") {
+                        router.push("/reservas");
+                    }
                 }
             } catch (err) {
                 console.error("Erro ao carregar usuário:", err);

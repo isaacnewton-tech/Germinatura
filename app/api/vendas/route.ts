@@ -38,6 +38,14 @@ export async function POST(request: Request) {
 
         const session = await getSession();
         const usuarioId = session?.user?.id;
+        const perfil = session?.user?.perfil;
+
+        if (perfil === "CONSUMER") {
+            return NextResponse.json(
+                { error: "Acesso negado: Consumidores não podem registrar vendas." },
+                { status: 403 }
+            );
+        }
 
         // Inicia uma transação Prisma para garantir que tudo seja criado ou nada
         const resultado = await prisma.$transaction(async (tx: any) => {
