@@ -78,7 +78,6 @@ export async function POST(request: Request) {
                     isPromocional: true,
                     produtoPaiId: produtoId,
                     promocaoId: promocao.id,
-                    imagemUrl: produtoPai.imagemUrl,
                     precos: {
                         create: {
                             valor: precoFixo

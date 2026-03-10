@@ -48,6 +48,8 @@ export default function PDVMobile() {
     const router = useRouter();
 
     const [user, setUser] = useState<any>(null);
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [isUpdatingStock, setIsUpdatingStock] = useState(false);
 
     const handleLogout = async () => {
         try {
@@ -170,7 +172,7 @@ export default function PDVMobile() {
 
                 if (requestedQty > availableStock) {
                     isValid = false;
-                    errorMessage = `Estoque insuficiente para ${cartItem.nome}. Solicitado: ${requestedQty}, Disponível: ${availableStock}.`;
+                    errorMessage = `Estoque insuficiente for ${cartItem.nome}. Solicitado: ${requestedQty}, Disponível: ${availableStock}.`;
 
                     // Adjust cart to the max available if it's less than requested
                     setCart((prev) => {
@@ -296,13 +298,20 @@ export default function PDVMobile() {
             if (response.ok) {
                 setCart({});
                 setIsModalOpen(false);
-                showToast("Venda registrada com sucesso!", "success");
+                setShowConfirmation(true); // Mostra a tela de confirmação
+                setIsUpdatingStock(true);
 
                 // Update local stock silently to reflect the current state
                 fetch("/api/produtos")
                     .then(res => res.json())
-                    .then((data: any[]) => setProducts(data.filter((p: Product) => p.ativo)))
-                    .catch(err => console.error("Erro ao atualizar estoque visual:", err));
+                    .then((data: any[]) => {
+                        setProducts(data.filter((p: Product) => p.ativo));
+                        setIsUpdatingStock(false);
+                    })
+                    .catch(err => {
+                        console.error("Erro ao atualizar estoque visual:", err);
+                        setIsUpdatingStock(false);
+                    });
 
             } else {
                 showToast("Erro ao registrar venda.", "error");
@@ -324,7 +333,73 @@ export default function PDVMobile() {
     }
 
     return (
-        <div className="relative mx-auto min-h-screen max-w-md bg-background-light pb-32 font-sans">
+        <div className="relative mx-auto min-h-screen max-w-md bg-background-light pb-32 font-sans overflow-hidden">
+            {/* Confirmation Screen Overlay */}
+            {showConfirmation && (
+                <div className="fixed inset-0 z-[100] bg-white animate-in fade-in duration-300 flex flex-col items-center justify-between p-8 text-center min-h-screen max-w-md mx-auto">
+                    <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-20">
+                        {/* Animated Checkmark Wrapper */}
+                        <div className="relative size-48 flex items-center justify-center">
+                            <div className="absolute inset-0 bg-emerald-100 rounded-full animate-in zoom-in-50 duration-500 fill-mode-both"></div>
+
+                            <div className="relative size-24 text-emerald-500 overflow-hidden flex items-center justify-center">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="w-full h-full drop-shadow-sm"
+                                >
+                                    <path
+                                        d="M20 6L9 17L4 12"
+                                        className="animate-checkmark"
+                                        style={{
+                                            strokeDasharray: 100,
+                                            strokeDashoffset: 100,
+                                            animation: 'checkmark 0.8s ease-in-out forwards 0.2s'
+                                        }}
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both text-center flex flex-col items-center w-full">
+                            <h2 className="text-3xl font-black text-slate-900 tracking-tight">Venda Confirmada!</h2>
+                            <p className="text-slate-500 font-medium max-w-[280px]">
+                                O pagamento foi processado e a venda registrada com sucesso.
+                            </p>
+                        </div>
+                    </div>
+
+                    {isUpdatingStock ? (
+                        <div className="flex flex-col items-center gap-2 py-5 animate-in fade-in duration-300">
+                            <Loader2 className="size-6 animate-spin text-emerald-500" />
+                            <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest">Atualizando Estoque...</span>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => setShowConfirmation(false)}
+                            className="w-full py-5 bg-emerald-100 text-emerald-700 font-black rounded-3xl text-xl shadow-lg shadow-emerald-500/10 active:scale-[0.97] transition-all animate-in slide-in-from-bottom-8 duration-500 fill-mode-both uppercase tracking-widest"
+                        >
+                            Continuar
+                        </button>
+                    )}
+
+                    <style jsx global>{`
+                        @keyframes checkmark {
+                            to {
+                                stroke-dashoffset: 0;
+                            }
+                        }
+                        .animate-checkmark {
+                            animation: checkmark 0.8s ease-in-out forwards;
+                        }
+                    `}</style>
+                </div>
+            )}
+
             {/* Top Header Component */}
             <header className="sticky top-0 z-30 flex items-center justify-between bg-white/80 px-4 py-4 backdrop-blur-md border-b border-slate-200">
                 <div className="flex items-center gap-3">

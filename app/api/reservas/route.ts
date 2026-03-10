@@ -18,22 +18,65 @@ export async function POST(req: NextRequest) {
 
         // Inicia uma transação Prisma para garantir que a reserva e a validação de estoque sejam atômicas
         const reserva = await prisma.$transaction(async (tx: any) => {
-            // 1. Validar estoque
+            // 1. Validar estoque e status promocional
             for (const item of itens) {
-                // Busca o produto de forma robusta
+                // Busca o produto de forma robusta, incluindo flags de promoção
                 let produto: any;
                 try {
                     produto = await tx.produto.findUnique({
                         where: { id: item.produtoId },
-                        select: { nome: true, estoque: true }
+                        select: {
+                            nome: true,
+                            estoque: true,
+                            isPromocional: true,
+                            promocaoId: true
+                        }
                     });
+
+                    // Se tiver promocaoId, verificar se a promoção está ativa e na validade
+                    if (produto?.promocaoId) {
+                        const now = new Date();
+                        const promocao = await tx.promocao.findUnique({
+                            where: { id: produto.promocaoId }
+                        });
+
+                        if (promocao && promocao.ativo && now >= promocao.dataInicio && now <= promocao.dataFim) {
+                            throw new Error(`Produtos em promoção não podem ser reservados: ${produto.nome}`);
+                        }
+                    }
+
+                    if (produto?.isPromocional) {
+                        throw new Error(`Combos não podem ser reservados: ${produto.nome}`);
+                    }
+
                 } catch (readError: any) {
+                    if (readError.message.includes("não podem ser reservados")) throw readError;
+
                     console.warn(`Reservas API: Prisma select failed for ${item.produtoId}, using raw SQL:`, readError.message);
-                    const rawResult: any[] = await tx.$queryRawUnsafe(
-                        `SELECT nome, estoque FROM "Produto" WHERE id = $1`,
-                        item.produtoId
-                    );
+                    const query = `
+                        SELECT p.nome, p.estoque, p."isPromocional", p."promocaoId", pr.ativo as "promoAtiva", pr."dataInicio", pr."dataFim"
+                        FROM "Produto" p
+                        LEFT JOIN "Promocao" pr ON p."promocaoId" = pr.id
+                        WHERE p.id = $1
+                    `;
+                    const rawResult: any[] = await tx.$queryRawUnsafe(query, item.produtoId);
                     produto = rawResult[0];
+
+                    if (produto) {
+                        const now = new Date();
+                        const isPromo = produto.isPromocional || produto.ispromocional;
+                        const promoAtiva = produto.promoAtiva || produto.promoativa;
+                        const dInicio = produto.dataInicio || produto.datainicio;
+                        const dFim = produto.dataFim || produto.datafim;
+
+                        if (isPromo) {
+                            throw new Error(`Combos não podem ser reservados: ${produto.nome}`);
+                        }
+
+                        if (promoAtiva && now >= new Date(dInicio) && now <= new Date(dFim)) {
+                            throw new Error(`Produtos em promoção não podem ser reservados: ${produto.nome}`);
+                        }
+                    }
                 }
 
                 if (!produto) {
